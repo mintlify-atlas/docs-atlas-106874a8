@@ -1,0 +1,87 @@
+{
+  "projectType": "frontend",
+  "projectName": "VAssist",
+  "projectDescription": "AI-powered Chrome extension with toolbar, chat interface, and animated 3D virtual companion",
+  "theme": "almond",
+  "primaryColor": "#8B5CF6",
+  "lightColor": "#A78BFA",
+  "darkColor": "#7C3AED",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "setup"
+            ]
+          },
+          {
+            "group": "Features",
+            "pages": [
+              "features/ai-toolbar",
+              "features/chat-interface",
+              "features/virtual-companion",
+              "features/chrome-ai"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/configuration",
+              "guides/ai-providers",
+              "guides/voice-features",
+              "guides/customization"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Development",
+        "groups": [
+          {
+            "group": "Contributing",
+            "pages": [
+              "development/contributing",
+              "development/architecture",
+              "development/extension-mode"
+            ]
+          },
+          {
+            "group": "API Reference",
+            "pages": [
+              "api/components",
+              "api/services",
+              "api/configuration"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "AI-powered text toolbar with summarize, translate, rewrite, and grammar tools",
+    "Chat interface with page context, file attachments, and voice mode",
+    "3D animated virtual companion with lip-synced speech",
+    "Chrome's built-in AI (Gemini Nano) with local processing",
+    "Multiple AI provider support (Chrome AI, OpenAI, Ollama)",
+    "Voice features with TTS and STT capabilities",
+    "Dual-mode architecture (demo site + Chrome extension)"
+  ],
+  "publicApiSurface": [
+    "AIService - Chat and prompt management",
+    "TTSService - Text-to-speech with multiple providers",
+    "STTService - Speech-to-text transcription",
+    "TranslatorService - Text translation",
+    "SummarizerService - Content summarization",
+    "RewriterService - Text rewriting and improvement",
+    "WriterService - Content generation",
+    "ChatHistoryService - Conversation management",
+    "VirtualAssistant - 3D character component",
+    "AIToolbar - Context-aware toolbar component",
+    "ChatContainer - Chat interface component"
+  ]
+}
