@@ -1,0 +1,459 @@
+---
+title: Voice Features
+description: Configure text-to-speech (TTS) and speech-to-text (STT) for voice interactions
+---
+
+VAssist supports voice-based interactions through text-to-speech (TTS) for AI responses and speech-to-text (STT) for voice input.
+
+## Text-to-Speech (TTS)
+
+### Enable TTS
+
+<ParamField path="ttsConfig.enabled" type="boolean" default="false">
+  Master toggle for text-to-speech functionality.
+  
+  When enabled, AI responses are spoken aloud using the configured TTS provider.
+</ParamField>
+
+### TTS Providers
+
+VAssist supports three TTS providers:
+
+<Tabs>
+  <Tab title="Kokoro (Default)">
+    **Local, high-quality neural TTS**
+    
+    Kokoro-JS runs entirely in your browser using WebAssembly and WebGPU. No API keys or internet required.
+    
+    **Advantages**:
+    - Free and private
+    - Natural-sounding voices
+    - Fast generation with WebGPU
+    - No API costs
+    - Works offline
+  </Tab>
+  
+  <Tab title="OpenAI TTS">
+    **Cloud-based premium voices**
+    
+    Uses OpenAI's text-to-speech API for professional-quality voices.
+    
+    **Advantages**:
+    - Extremely natural voices
+    - Consistent quality
+    - Multiple voice options
+    - Fast cloud processing
+    
+    **Requires**: OpenAI API key and credits
+  </Tab>
+  
+  <Tab title="OpenAI-Compatible">
+    **Custom TTS endpoints**
+    
+    Connect to any OpenAI-compatible TTS API (self-hosted or third-party).
+    
+    **Use cases**:
+    - Self-hosted TTS servers
+    - Custom voice models
+    - Alternative TTS services
+  </Tab>
+</Tabs>
+
+## Kokoro TTS Configuration
+
+<ParamField path="ttsConfig.provider" type="string" default="kokoro">
+  Set to `kokoro` for local browser-based TTS.
+</ParamField>
+
+### Voice Selection
+
+<ParamField path="ttsConfig.kokoro.voice" type="string" default="af_heart">
+  Choose from 24+ high-quality voices.
+  
+  **American Female (af_)**:
+  - `af_heart` - Warm and friendly (default)
+  - `af_alloy` - Clear and professional
+  - `af_aoede` - Expressive storyteller
+  - `af_bella` - Youthful and energetic
+  - `af_jessica` - Confident and articulate
+  - `af_kore` - Calm and soothing
+  - `af_nicole` - Neutral professional
+  - `af_nova` - Bright and engaging
+  - `af_river` - Smooth and natural
+  - `af_sarah` - Friendly conversational
+  - `af_sky` - Light and airy
+  
+  **American Male (am_)**:
+  - `am_adam` - Deep and authoritative
+  - `am_echo` - Resonant and clear
+  - `am_eric` - Warm and approachable
+  - `am_fenrir` - Strong and powerful
+  - `am_liam` - Youthful and friendly
+  - `am_michael` - Professional narrator
+  - `am_onyx` - Rich and smooth
+  - `am_puck` - Playful and energetic
+  - `am_santa` - Jolly and warm
+  
+  **British Female (bf_)**:
+  - `bf_alice` - Refined British accent
+  - `bf_emma` - Clear and elegant
+  - `bf_isabella` - Sophisticated
+  - `bf_lily` - Gentle and warm
+  
+  **British Male (bm_)**:
+  - `bm_daniel` - Distinguished British
+  - `bm_fable` - Narrative storyteller
+  - `bm_george` - Classic British
+  - `bm_lewis` - Modern British
+</ParamField>
+
+### Performance Options
+
+<ParamField path="ttsConfig.kokoro.device" type="string" default="auto">
+  Backend for TTS processing.
+  
+  - **`auto`**: Auto-detect (WebGPU if available, else WASM)
+  - **`webgpu`**: GPU acceleration (2-10x faster, requires compatible GPU)
+  - **`wasm`**: CPU fallback (universal compatibility)
+  
+  <Info>
+    WebGPU provides significantly faster generation but requires a compatible GPU. Auto mode automatically falls back to WASM if WebGPU is unavailable.
+  </Info>
+</ParamField>
+
+<ParamField path="ttsConfig.kokoro.speed" type="number" default="1.0">
+  Speech rate multiplier.
+  
+  - **Range**: 0.5 - 2.0
+  - **0.5-0.8**: Slower, clearer speech
+  - **1.0**: Normal speed (recommended)
+  - **1.2-2.0**: Faster speech
+</ParamField>
+
+<ParamField path="ttsConfig.kokoro.keepModelLoaded" type="boolean" default="true">
+  Keep the TTS model loaded in memory.
+  
+  - **Enabled**: Faster subsequent generations, uses ~150-300MB RAM
+  - **Disabled**: Slower but frees memory between uses
+</ParamField>
+
+### Advanced Settings
+
+<ParamField path="ttsConfig.kokoro.modelId" type="string" default="onnx-community/Kokoro-82M-v1.0-ONNX">
+  Hugging Face model identifier for Kokoro.
+  
+  Default model is optimized for quality and performance.
+</ParamField>
+
+<ParamField path="ttsConfig.chunkSize" type="number" default="500">
+  Maximum characters per TTS chunk.
+  
+  - Larger chunks: Fewer API calls, more continuous speech
+  - Smaller chunks: Lower latency, faster first audio
+</ParamField>
+
+<ParamField path="ttsConfig.minChunkSize" type="number" default="100">
+  Minimum characters before creating a chunk.
+  
+  Prevents extremely short audio segments.
+</ParamField>
+
+## OpenAI TTS Configuration
+
+<ParamField path="ttsConfig.provider" type="string">
+  Set to `openai` for OpenAI's TTS service.
+</ParamField>
+
+<ParamField path="ttsConfig.openai.apiKey" type="string" required>
+  Your OpenAI API key.
+  
+  <Warning>
+    Keep your API key secure. It's stored locally and never shared.
+  </Warning>
+</ParamField>
+
+<ParamField path="ttsConfig.openai.model" type="string" default="tts-1">
+  OpenAI TTS model.
+  
+  - **`tts-1`**: Standard quality, faster, lower cost
+  - **`tts-1-hd`**: High-definition quality, slower, higher cost
+</ParamField>
+
+<ParamField path="ttsConfig.openai.voice" type="string" default="nova">
+  OpenAI voice selection.
+  
+  Available voices:
+  - **`alloy`**: Neutral, balanced
+  - **`echo`**: Male, clear
+  - **`fable`**: British male, expressive
+  - **`onyx`**: Deep male voice
+  - **`nova`**: Female, friendly (default)
+  - **`shimmer`**: Female, warm
+</ParamField>
+
+<ParamField path="ttsConfig.openai.speed" type="number" default="1.0">
+  Speech rate (0.5 - 2.0).
+</ParamField>
+
+## OpenAI-Compatible TTS
+
+<ParamField path="ttsConfig.provider" type="string">
+  Set to `openai-compatible` for custom endpoints.
+</ParamField>
+
+<ParamField path="ttsConfig['openai-compatible'].endpoint" type="string" default="http://localhost:8000" required>
+  TTS API endpoint URL.
+  
+  Must be compatible with OpenAI's TTS API format.
+</ParamField>
+
+<ParamField path="ttsConfig['openai-compatible'].apiKey" type="string">
+  API key for the custom endpoint (if required).
+</ParamField>
+
+<ParamField path="ttsConfig['openai-compatible'].model" type="string" default="tts">
+  Model name or identifier for the TTS service.
+</ParamField>
+
+<ParamField path="ttsConfig['openai-compatible'].voice" type="string" default="default">
+  Voice name supported by your TTS service.
+</ParamField>
+
+<ParamField path="ttsConfig['openai-compatible'].speed" type="number" default="1.0">
+  Speech rate multiplier.
+</ParamField>
+
+## Speech-to-Text (STT)
+
+### Enable STT
+
+<ParamField path="sttConfig.enabled" type="boolean" default="false">
+  Master toggle for speech-to-text functionality.
+  
+  When enabled, users can dictate messages using the microphone button.
+</ParamField>
+
+### STT Providers
+
+<Tabs>
+  <Tab title="Chrome AI Multimodal">
+    **Free, local transcription**
+    
+    Uses Chrome's built-in multimodal AI for speech recognition.
+    
+    **Requirements**:
+    - Chrome 138+
+    - Multimodal Input flag enabled
+    
+    **Advantages**:
+    - Free and private
+    - Works offline
+    - No API costs
+    - Fast processing
+  </Tab>
+  
+  <Tab title="OpenAI Whisper">
+    **Cloud-based transcription**
+    
+    OpenAI's Whisper API for high-accuracy speech recognition.
+    
+    **Advantages**:
+    - Excellent accuracy
+    - Multilingual support
+    - Punctuation and formatting
+    
+    **Requires**: OpenAI API key
+  </Tab>
+  
+  <Tab title="OpenAI-Compatible">
+    **Custom STT endpoints**
+    
+    Self-hosted Whisper or alternative STT services.
+    
+    **Use cases**:
+    - Local Whisper deployment
+    - Privacy-focused setups
+    - Custom speech models
+  </Tab>
+</Tabs>
+
+## Chrome AI STT Configuration
+
+<ParamField path="sttConfig.provider" type="string" default="chrome-ai-multimodal">
+  Set to `chrome-ai-multimodal` for Chrome's built-in STT.
+</ParamField>
+
+<ParamField path="sttConfig['chrome-ai-multimodal'].temperature" type="number" default="0.1">
+  Transcription randomness (0.0 - 2.0).
+  
+  Lower values are recommended for transcription accuracy.
+</ParamField>
+
+<ParamField path="sttConfig['chrome-ai-multimodal'].topK" type="number" default="3">
+  Token selection diversity (1 - 128).
+</ParamField>
+
+<ParamField path="sttConfig['chrome-ai-multimodal'].outputLanguage" type="string" default="en">
+  Transcription language.
+  
+  Supported: `en`, `es`, `ja`
+</ParamField>
+
+## OpenAI STT Configuration
+
+<ParamField path="sttConfig.provider" type="string">
+  Set to `openai` for Whisper API.
+</ParamField>
+
+<ParamField path="sttConfig.openai.apiKey" type="string" required>
+  OpenAI API key.
+</ParamField>
+
+<ParamField path="sttConfig.openai.model" type="string" default="whisper-1">
+  Whisper model name.
+  
+  Currently only `whisper-1` is available via API.
+</ParamField>
+
+<ParamField path="sttConfig.openai.language" type="string" default="en">
+  Input audio language (ISO 639-1 code).
+  
+  Examples: `en`, `es`, `fr`, `de`, `ja`, `zh`
+  
+  <Info>
+    Specifying the language improves accuracy and reduces latency.
+  </Info>
+</ParamField>
+
+<ParamField path="sttConfig.openai.temperature" type="number" default="0">
+  Transcription sampling temperature.
+  
+  - **0**: Deterministic, most accurate
+  - **0.1-0.5**: Slight variability
+</ParamField>
+
+## OpenAI-Compatible STT
+
+<ParamField path="sttConfig.provider" type="string">
+  Set to `openai-compatible`.
+</ParamField>
+
+<ParamField path="sttConfig['openai-compatible'].endpoint" type="string" default="http://localhost:8000" required>
+  STT API endpoint.
+</ParamField>
+
+<ParamField path="sttConfig['openai-compatible'].apiKey" type="string">
+  API key (if required).
+</ParamField>
+
+<ParamField path="sttConfig['openai-compatible'].model" type="string" default="whisper">
+  Model name.
+</ParamField>
+
+<ParamField path="sttConfig['openai-compatible'].language" type="string" default="en">
+  Transcription language.
+</ParamField>
+
+<ParamField path="sttConfig['openai-compatible'].temperature" type="number" default="0">
+  Sampling temperature.
+</ParamField>
+
+## Recording Settings
+
+<ParamField path="sttConfig.recordingFormat" type="string" default="webm">
+  Audio recording format.
+  
+  - **`webm`**: Widely supported, good compression
+  - **`mp4`**: Alternative format
+  - **`wav`**: Uncompressed, larger files
+</ParamField>
+
+<ParamField path="sttConfig.maxRecordingDuration" type="number" default="60">
+  Maximum recording length in seconds.
+  
+  Prevents excessively long recordings and API timeouts.
+</ParamField>
+
+<ParamField path="sttConfig.audioDeviceSwitchDelay" type="number" default="300">
+  Delay (ms) when switching audio devices.
+  
+  Allows hardware to stabilize before recording.
+</ParamField>
+
+## Using Voice Mode
+
+### Voice Input
+
+1. **Enable STT** in settings
+2. **Click the microphone icon** in the chat input
+3. **Speak your message** (up to max duration)
+4. **Click stop** or wait for silence detection
+5. Message is transcribed and ready to send
+
+### Voice Output
+
+1. **Enable TTS** in settings
+2. AI responses are automatically spoken
+3. **Adjust speed** in TTS settings if needed
+4. **Change voice** to match your preference
+
+### Voice Conversation Mode
+
+<Info>
+  Enable both TTS and STT for a fully voice-based conversation experience:
+  
+  1. Speak your question → STT transcribes
+  2. AI processes and responds
+  3. TTS reads the response aloud
+  4. Repeat for natural voice interaction
+</Info>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Kokoro TTS not working">
+    **Check**:
+    1. Browser supports WebAssembly
+    2. Sufficient memory available (~300MB for model)
+    3. No browser extensions blocking WASM
+    4. Try switching device from `webgpu` to `wasm`
+    
+    **WebGPU issues**: If GPU acceleration fails, auto mode falls back to WASM automatically.
+  </Accordion>
+  
+  <Accordion title="OpenAI TTS/STT errors">
+    **Common issues**:
+    - Invalid API key
+    - Insufficient credits
+    - Rate limiting (reduce request frequency)
+    - Model name typo
+    
+    Check OpenAI dashboard for quota and usage.
+  </Accordion>
+  
+  <Accordion title="Chrome AI STT unavailable">
+    **Verify**:
+    1. Chrome 138+ installed
+    2. Multimodal Input flag enabled (`chrome://flags`)
+    3. Chrome restarted after enabling flag
+    4. Microphone permission granted
+  </Accordion>
+  
+  <Accordion title="Microphone not working">
+    **Steps**:
+    1. Grant microphone permission in browser
+    2. Check system audio settings
+    3. Test microphone in browser settings
+    4. Ensure no other app is using the mic
+    5. Try a different browser if persistent
+  </Accordion>
+  
+  <Accordion title="Audio playback issues">
+    **Check**:
+    1. Browser audio not muted
+    2. System volume turned up
+    3. No headphone detection issues
+    4. Try different audio output device
+    5. Check browser console for errors
+  </Accordion>
+</AccordionGroup>

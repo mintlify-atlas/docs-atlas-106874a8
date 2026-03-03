@@ -1,0 +1,314 @@
+---
+title: AI Toolbar
+description: Context-aware AI tools that appear when you select text or interact with images
+---
+
+The AI Toolbar is VAssist's context-aware interface that appears when you select text or hover over images on any website. It provides instant access to powerful AI features powered by Chrome's built-in Gemini Nano model.
+
+<Frame>
+  <img src="/assets/toolbars.png" alt="AI Toolbar in action" />
+</Frame>
+
+## Text Selection Features
+
+Select any text on any webpage to reveal the AI toolbar with these features:
+
+### Summarize
+
+<Frame>
+  <img src="/assets/summarize.png" alt="Summarize feature" />
+</Frame>
+
+Turn walls of text into digestible chunks using Chrome's **Summarizer API**. Get three types of summaries:
+
+- **Headline** - One punchy line that captures the essence
+- **Key Points** - Bullet list of main ideas
+- **Teaser** - Short preview that hooks you in
+
+<CodeGroup>
+```javascript Summarizer API
+// Chrome's built-in Summarizer API
+const summarizer = await self.aiSummarizer.create({
+  type: 'tldr',
+  format: 'plain-text',
+  length: 'medium'
+});
+
+const result = await summarizer.summarize(selectedText);
+```
+</CodeGroup>
+
+**Configuration options:**
+- **Type**: `tldr`, `key-points`, `teaser`, `headline`
+- **Format**: `plain-text`, `markdown`
+- **Length**: `short`, `medium`, `long`
+
+### Translate
+
+<Frame>
+  <img src="/assets/translate.png" alt="Translate feature" />
+</Frame>
+
+<Frame>
+  <img src="/assets/language_detector.png" alt="Language detection" />
+</Frame>
+
+Speak any language with Chrome's **Translator API** and **Language Detector API**:
+
+- Translate to 100+ languages instantly
+- Auto-detect source language
+- Works completely offline
+- No external API calls required
+
+<CodeGroup>
+```javascript Translation API
+// Auto-detect source language
+const detector = await self.translation.createDetector();
+const results = await detector.detect(text);
+const sourceLang = results[0].detectedLanguage;
+
+// Translate to target language
+const translator = await self.translation.createTranslator({
+  sourceLanguage: sourceLang,
+  targetLanguage: 'es'
+});
+
+const translated = await translator.translate(text);
+```
+</CodeGroup>
+
+**Supported languages include:**
+- English, Spanish, French, German, Italian, Portuguese
+- Chinese, Japanese, Korean
+- Arabic, Hindi, Russian
+- And 100+ more languages
+
+### Rewrite
+
+<Frame>
+  <img src="/assets/rewrite.png" alt="Rewrite feature" />
+</Frame>
+
+Make your words shine with Chrome's **Rewriter API**:
+
+<CardGroup cols={2}>
+  <Card title="Fix Grammar" icon="spell-check">
+    Clean up spelling and grammar mistakes
+  </Card>
+  <Card title="Change Tone" icon="message">
+    Go formal, casual, or professional
+  </Card>
+  <Card title="Adjust Length" icon="arrows-left-right">
+    Make it shorter, expand it, or keep it concise
+  </Card>
+  <Card title="Improve Clarity" icon="lightbulb">
+    Simplify complex sentences
+  </Card>
+</CardGroup>
+
+<CodeGroup>
+```javascript Rewriter API
+const rewriter = await self.aiRewriter.create({
+  tone: 'formal',
+  format: 'as-is',
+  length: 'as-is'
+});
+
+const rewritten = await rewriter.rewrite(text, {
+  context: 'Professional email to a client'
+});
+```
+</CodeGroup>
+
+**Tone options:**
+- `as-is` - Keep original tone
+- `formal` - Professional and polished
+- `casual` - Friendly and conversational
+
+**Length options:**
+- `as-is` - Keep original length
+- `shorter` - Make it more concise
+- `longer` - Expand with more detail
+
+### Dictionary
+
+Your personal word expert using Chrome's **Prompt API** (Gemini Nano):
+
+<CardGroup cols={2}>
+  <Card title="Definitions" icon="book">
+    Get clear, concise definitions
+  </Card>
+  <Card title="Synonyms" icon="list">
+    Find alternative words
+  </Card>
+  <Card title="Pronunciation" icon="volume">
+    Learn how to say it
+  </Card>
+  <Card title="Examples" icon="quote-left">
+    See real usage in context
+  </Card>
+</CardGroup>
+
+### Writer
+
+<Frame>
+  <img src="/assets/writer.png" alt="Writer feature" />
+</Frame>
+
+Generate fresh content from scratch using Chrome's **Writer API**:
+
+- Create content based on your ideas
+- Works with selected text as context
+- Perfect for brainstorming and drafting
+- Specify tone, format, and length
+
+<CodeGroup>
+```javascript Writer API
+const writer = await self.aiWriter.create({
+  tone: 'neutral',
+  format: 'plain-text',
+  length: 'medium'
+});
+
+const content = await writer.write(
+  'Write a brief introduction about AI assistants',
+  { context: selectedText }
+);
+```
+</CodeGroup>
+
+## Image Tools
+
+Hover over any image on a webpage to access AI-powered image analysis:
+
+<CardGroup cols={3}>
+  <Card title="Describe" icon="image">
+    **Multimodal Prompt API**
+    
+    AI tells you what's in the image with detailed descriptions
+  </Card>
+  <Card title="Extract Text" icon="text">
+    **OCR**
+    
+    Pull out text from screenshots, photos, and documents
+  </Card>
+  <Card title="Identify Objects" icon="eye">
+    **Object Detection**
+    
+    Spot and label things in photos automatically
+  </Card>
+</CardGroup>
+
+<CodeGroup>
+```javascript Image Analysis
+// Describe image content
+const session = await self.LanguageModel.create({
+  temperature: 1.0,
+  topK: 3
+});
+
+const description = await session.prompt(
+  'Describe this image in detail',
+  { image: imageElement }
+);
+```
+</CodeGroup>
+
+## Voice Dictation
+
+<Frame>
+  <img src="/assets/dictation.png" alt="Voice dictation" />
+</Frame>
+
+Talk instead of type. The **Multimodal Input API** lets you dictate directly into text fields:
+
+- Click the microphone icon in any text input
+- Speak naturally
+- Watch your words appear in real-time
+- Works completely on-device for privacy
+
+<CodeGroup>
+```javascript Voice Input
+const session = await self.LanguageModel.create({
+  temperature: 0.1,
+  topK: 3,
+  outputLanguage: 'en'
+});
+
+const transcription = await session.prompt(
+  'Transcribe this audio',
+  { audio: audioBlob }
+);
+```
+</CodeGroup>
+
+<Note>
+Voice dictation requires the **Multimodal Input** Chrome flag to be enabled. See [Installation](/installation) for setup instructions.
+</Note>
+
+## How It Works
+
+The AI Toolbar uses Chrome's Built-in AI APIs for all processing:
+
+<Steps>
+  <Step title="Text Selection">
+    When you select text or focus an input field, VAssist detects the context and displays relevant tools
+  </Step>
+  <Step title="On-Device Processing">
+    All AI operations run locally using Gemini Nano - no data leaves your device
+  </Step>
+  <Step title="Instant Results">
+    Results appear in a floating panel near your selection with options to copy, edit, or apply
+  </Step>
+</Steps>
+
+## Document Interaction
+
+Beyond text and images, the toolbar provides smart document features:
+
+- **Page Context** - Ask questions about the current page
+- **Smart Summaries** - Get instant summaries of articles and documents
+- **Content Analysis** - Understand complex content with AI assistance
+
+<Info>
+All toolbar features work seamlessly across any website without requiring additional permissions or external API keys.
+</Info>
+
+## Configuration
+
+Customize toolbar behavior in the Control Panel:
+
+- Enable/disable specific tools
+- Set default languages for translation
+- Configure summarizer length and format
+- Choose rewriter tone preferences
+
+See [Configuration](/guides/configuration) for detailed settings.
+
+## Privacy & Performance
+
+<CardGroup cols={2}>
+  <Card title="100% Local" icon="shield">
+    All processing happens on your device. No data sent to external servers.
+  </Card>
+  <Card title="Fast & Efficient" icon="bolt">
+    Chrome's optimized Gemini Nano model provides instant results.
+  </Card>
+  <Card title="No API Keys" icon="key">
+    Works out of the box without any API keys or accounts.
+  </Card>
+  <Card title="Offline Ready" icon="wifi">
+    Most features work completely offline after initial model download.
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Chat Interface" href="/features/chat-interface" icon="comments">
+    Learn about the conversational chat features
+  </Card>
+  <Card title="Chrome AI APIs" href="/features/chrome-ai" icon="chrome">
+    Deep dive into Chrome's built-in AI capabilities
+  </Card>
+</CardGroup>

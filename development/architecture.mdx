@@ -1,0 +1,282 @@
+---
+title: Architecture Overview
+description: Understanding VAssist's dual-mode architecture and code organization
+---
+
+VAssist uses a unique dual-mode architecture that allows the same codebase to run as both a standalone web app and a Chrome extension.
+
+## Two Modes, Same Code
+
+VAssist runs in two distinct modes that share **95% of the same code**:
+
+### Demo Mode (Standalone Web App)
+
+**Characteristics:**
+- Lives at the demo URL as a standard React app
+- Makes direct API calls to AI services
+- Hot reload for fast development
+- Perfect for quickly testing features
+- Simpler architecture without extension constraints
+
+**Use Cases:**
+- Feature development and testing
+- UI/UX experimentation
+- Quick demos and prototypes
+
+### Extension Mode (Chrome Extension)
+
+**Characteristics:**
+- Injects into any website as a Chrome extension
+- Uses message passing between isolated contexts
+- Shadow DOM for complete CSS isolation
+- Multi-tab support with per-tab state management
+- Manifest V3 architecture
+
+**Use Cases:**
+- Production usage on any website
+- Multi-tab scenarios
+- Privacy-focused local AI processing
+- Integration with host page content
+
+## Code Sharing Strategy
+
+### Shared Components (95%)
+
+These directories contain code that works identically in both modes:
+
+```
+src/
+├── components/     # All React UI components
+├── babylon/        # All 3D rendering (Babylon.js)
+├── config/         # Configuration files
+├── utils/          # Utility functions
+├── contexts/       # React contexts
+├── hooks/          # React hooks
+└── styles/         # CSS and styling
+```
+
+<Note>
+  Components in `src/components/` automatically work in both demo and extension modes without modification.
+</Note>
+
+### Mode-Specific Code (5%)
+
+#### Demo Mode: Direct API Calls
+
+```
+src/services/       # Direct service implementations
+├── AIService.js           # Direct OpenAI/API calls
+├── TTSService.js          # Direct TTS API calls
+└── StorageManager.js      # localStorage/IndexedDB
+```
+
+#### Extension Mode: Message Passing
+
+```
+extension/
+├── manifest.json          # Extension configuration
+├── background/            # Service worker
+│   ├── index.js          # Message handlers
+│   ├── TabManager.js     # Per-tab state
+│   └── BackgroundBridge.js
+├── content/               # Content script
+│   ├── index.js          # Injection logic
+│   └── ContentBridge.js  # Message bridge
+├── offscreen/             # Heavy processing
+│   └── offscreen.js      # Audio/Kokoro TTS
+└── shared/                # Shared utilities
+    └── MessageBridge.js   # Base message class
+```
+
+### Smart Proxies
+
+Proxies in `src/services/proxies/` automatically detect the environment and route calls:
+
+```javascript
+// Automatically routes to demo or extension implementation
+import aiService from './services/proxies/AIServiceProxy';
+
+// Works in both modes!
+await aiService.sendMessage(messages);
+```
+
+**How it works:**
+- Detects if running in extension context (`chrome.runtime` exists)
+- Routes to background service worker (extension mode)
+- Or routes to direct service implementation (demo mode)
+
+## Project Structure
+
+### Main Source (`src/`)
+
+```
+src/
+├── components/
+│   ├── VirtualAssistant.jsx    # Main app component
+│   ├── SettingsPanel.jsx       # Settings UI
+│   ├── setup/                  # Setup wizard
+│   ├── settings/               # Settings panels
+│   ├── toolbar/                # Toolbar components
+│   └── common/                 # Shared UI components
+│
+├── babylon/                    # 3D rendering engine
+│   ├── MMDModelScene.js       # Main 3D scene
+│   └── AnimationManager.js    # Animation control
+│
+├── services/
+│   ├── AIService.js           # AI chat service
+│   ├── TTSService.js          # Text-to-speech
+│   ├── STTService.js          # Speech-to-text
+│   ├── TranslatorService.js   # Translation
+│   └── proxies/               # Mode routing
+│
+├── managers/
+│   ├── ChatManager.js         # Chat state management
+│   └── StorageManager.js      # Data persistence
+│
+├── config/
+│   ├── aiConfig.js            # AI provider configs
+│   ├── animationConfig.js     # Animation mappings
+│   └── uiConfig.js            # UI defaults
+│
+└── workers/
+    ├── AudioWorkerClient.js   # Audio processing
+    └── shared/                # Shared processing cores
+        ├── VMDGenerationCore.js    # Lip sync generation
+        ├── KokoroTTSCore.js        # Kokoro TTS engine
+        └── BVMDConversionCore.js   # Animation format
+```
+
+### Extension-Specific (`extension/`)
+
+```
+extension/
+├── manifest.json              # Extension metadata
+│
+├── background/                # Service worker (persistent)
+│   ├── index.js              # Main entry point
+│   ├── BackgroundBridge.js   # Message routing
+│   ├── TabManager.js         # Per-tab state
+│   └── OffscreenManager.js   # Offscreen document control
+│
+├── content/                   # Content script (per-page)
+│   ├── index.js              # Injection logic
+│   ├── main.jsx              # React entry point
+│   └── ContentBridge.js      # Message bridge
+│
+├── offscreen/                 # Offscreen document
+│   ├── offscreen.html        # Minimal HTML
+│   └── offscreen.js          # Heavy processing
+│
+└── shared/                    # Shared utilities
+    ├── MessageTypes.js       # Message type constants
+    └── MessageBridge.js      # Base message class
+```
+
+### Static Assets (`public/`)
+
+```
+public/
+└── res/
+    └── assets/
+        ├── model/             # 3D character models (.bpmx)
+        └── motion/            # Animations (.bvmd)
+```
+
+## Key Technologies
+
+### Frontend Framework
+
+- **React 19** - UI components and state management
+- **Tailwind CSS 4** - Styling with Shadow DOM support
+- **Vite** (Rolldown) - Lightning-fast build tool
+
+### 3D Graphics
+
+- **Babylon.js 8** - WebGL rendering engine
+- **babylon-mmd** - MMD model and animation support
+- **Havok Physics** - Physics simulation
+
+### AI & Processing
+
+- **OpenAI SDK** - GPT and TTS API integration
+- **Transformers.js** - On-device AI (Kokoro TTS)
+- **Chrome AI APIs** - Built-in browser AI features
+
+### Data Storage
+
+- **Dexie.js** - IndexedDB wrapper for large data
+- **chrome.storage** - Extension storage API
+- **localStorage** - Simple key-value storage
+
+## Architecture Principles
+
+### 1. Maximum Code Reuse
+
+95% code sharing between modes means:
+- Features work everywhere by default
+- Single codebase to maintain
+- Consistent behavior across modes
+
+### 2. Context Isolation
+
+Extension mode uses multiple isolated contexts:
+- **Main World**: React app with full DOM access
+- **Content Script**: Isolated bridge between worlds
+- **Background Worker**: Persistent service handler
+- **Offscreen Document**: Heavy processing with AudioContext
+
+### 3. Message-Based Communication
+
+All inter-context communication uses structured messages:
+```javascript
+{
+  type: 'AI_SEND_MESSAGE',
+  requestId: 'unique-id',
+  data: { messages: [...] },
+  timestamp: Date.now()
+}
+```
+
+### 4. Per-Tab State Management
+
+Each browser tab gets isolated state:
+- Independent chat histories
+- Separate AI sessions
+- Isolated abort controllers
+- Automatic cleanup on tab close
+
+### 5. Progressive Enhancement
+
+- Works with minimal permissions
+- Gracefully degrades without APIs
+- Optional features (TTS, STT, Chrome AI)
+- Fallback to basic functionality
+
+## Performance Considerations
+
+### Code Splitting
+
+- Heavy dependencies loaded on-demand
+- Separate bundles for demo vs extension
+- Web Workers for parallel processing
+
+### Memory Management
+
+- Per-tab resource cleanup
+- Automatic inactive tab cleanup (1 hour)
+- Model caching in IndexedDB
+- Explicit abort controller cleanup
+
+### Build Optimization
+
+- Vite (Rolldown) for fast builds
+- Tree-shaking unused code
+- Minification and compression
+- Source maps for debugging
+
+## Next Steps
+
+- **[Extension Architecture](/development/extension-mode)** - Deep dive into extension mode
+- **[Contributing Guide](/development/contributing)** - Start contributing to VAssist
+- **[AI Toolbar](/features/ai-toolbar)** - Explore VAssist capabilities

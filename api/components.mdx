@@ -1,0 +1,419 @@
+---
+title: 'Components Reference'
+description: 'React component API for VAssist 3D virtual assistant'
+---
+
+# Components
+
+React components for building VAssist's 3D character interface, chat UI, and AI-powered toolbar.
+
+---
+
+## VirtualAssistant
+
+High-level wrapper component managing the 3D scene, animations, and character positioning.
+
+### Props
+
+<ParamField path="onReady" type="function">
+  Callback when assistant is initialized. Receives object with `animationManager`, `positionManager`, and `scene`.
+</ParamField>
+
+<ParamField path="isPreview" type="boolean" default={false}>
+  Enable preview mode for setup wizard (renders inline instead of portal)
+</ParamField>
+
+<ParamField path="previewWidth" type="string" default="100%">
+  Width for preview mode
+</ParamField>
+
+<ParamField path="previewHeight" type="string" default="100%">
+  Height for preview mode
+</ParamField>
+
+<ParamField path="previewClassName" type="string" default="">
+  Additional CSS classes for preview container
+</ParamField>
+
+<ParamField path="portraitMode" type="boolean" default={false}>
+  Enable portrait mode in preview (clips model at waist)
+</ParamField>
+
+<ParamField path="previewPosition" type="string" default="bottom-center">
+  Position preset for preview mode
+</ParamField>
+
+### Ref Methods
+
+Access these methods via ref:
+
+```jsx
+const assistantRef = useRef();
+<VirtualAssistant ref={assistantRef} />
+// Call methods:
+assistantRef.current.speak(text, vmdBlobUrl, 'talking');
+```
+
+<ResponseField name="speak" type="function">
+  ```typescript
+  speak(
+    text: string,
+    mouthAnimationBlobUrl: string,
+    emotionCategory: string = 'talking',
+    options?: { primaryWeight?: number, fillWeight?: number }
+  ): Promise<void>
+  ```
+  Make the assistant speak with lip sync and emotion-based body animation.
+  
+  **Parameters:**
+  - `text`: Text to speak
+  - `mouthAnimationBlobUrl`: Blob URL to BVMD file with lip-sync animation
+  - `emotionCategory`: Animation category ('talking', 'idle', 'thinking', 'celebrating', 'walking')
+  - `options`: Blending weights for composite animations
+  
+  **Example:**
+  ```jsx
+  assistantRef.current.speak("Hello!", vmdBlobUrl, "talking");
+  ```
+</ResponseField>
+
+<ResponseField name="idle" type="function">
+  ```typescript
+  idle(): Promise<void>
+  ```
+  Returns assistant to idle state.
+</ResponseField>
+
+<ResponseField name="setState" type="function">
+  ```typescript
+  setState(stateOrEmotion: string): Promise<void>
+  ```
+  Sets assistant state directly using state from `AssistantState` enum or emotion string.
+</ResponseField>
+
+<ResponseField name="triggerAction" type="function">
+  ```typescript
+  triggerAction(action: string): Promise<void>
+  ```
+  Triggers specific action: 'think', 'walk', 'celebrate', 'speak'.
+</ResponseField>
+
+<ResponseField name="playComposite" type="function">
+  ```typescript
+  playComposite(
+    primaryAnimName: string,
+    fillCategory: string = 'talking',
+    options?: { primaryWeight?: number, fillWeight?: number }
+  ): Promise<void>
+  ```
+  Plays composite animation with stitched fill animations.
+</ResponseField>
+
+<ResponseField name="getState" type="function">
+  ```typescript
+  getState(): string
+  ```
+  Returns current assistant state.
+</ResponseField>
+
+<ResponseField name="isReady" type="function">
+  ```typescript
+  isReady(): boolean
+  ```
+  Checks if AnimationManager is initialized.
+</ResponseField>
+
+<ResponseField name="getAnimationManager" type="function">
+  ```typescript
+  getAnimationManager(): AnimationManager | null
+  ```
+  Gets direct access to AnimationManager instance.
+</ResponseField>
+
+<ResponseField name="setPosition" type="function">
+  ```typescript
+  setPosition(preset: string): void
+  ```
+  Sets model position using preset ('bottom-right', 'bottom-left', 'center', etc.).
+</ResponseField>
+
+<ResponseField name="getPositionManager" type="function">
+  ```typescript
+  getPositionManager(): PositionManager | null
+  ```
+  Gets direct access to PositionManager instance.
+</ResponseField>
+
+<ResponseField name="queueAnimation" type="function">
+  ```typescript
+  queueAnimation(animationName: string, force?: boolean): void
+  ```
+  Queues a simple animation to play after current animation finishes.
+</ResponseField>
+
+<ResponseField name="clearQueue" type="function">
+  ```typescript
+  clearQueue(): void
+  ```
+  Clears all queued animations.
+</ResponseField>
+
+---
+
+## AIToolbar
+
+Floating context-aware toolbar for text and image operations. Appears on text selection, input focus, or image hover.
+
+### Features
+
+- **Summarization**: TL;DR, headline, key points, teaser
+- **Translation**: Auto-detect source language, translate to target
+- **Image Analysis**: Describe, extract text, analyze images
+- **Text Rewriting**: Grammar fix, tone adjustment, length changes
+- **Content Writing**: Generate new content from prompts
+- **Voice Dictation**: Speech-to-text for editable fields
+- **Language Detection**: Identify text language
+
+### Usage
+
+AIToolbar is automatically rendered and managed by the application. It appears contextually based on user actions.
+
+<Accordion title="Toolbar Triggers">
+  - **Text Selection**: Shows summarize, translate, rewrite options
+  - **Input Focus**: Shows dictation button
+  - **Image Hover**: Shows image analysis options
+  - **Editable Content**: Shows insert/replace options after processing
+</Accordion>
+
+---
+
+## ChatContainer
+
+Main chat interface managing messages, TTS playback, history, and settings.
+
+### Props
+
+<ParamField path="modelDisabled" type="boolean" default={false}>
+  Whether 3D model is disabled (chat-only mode)
+</ParamField>
+
+<ParamField path="onDragDrop" type="function">
+  Callback to handle dropped content (images, audio, text)
+</ParamField>
+
+### Features
+
+- **Message Display**: Streaming text with smooth animation
+- **TTS Playback**: Text-to-speech for AI messages
+- **Branch Navigation**: Navigate between message variations
+- **Chat History**: Save/load conversations
+- **Settings Panel**: Configure AI, TTS, STT, UI
+- **Drag & Drop**: Attach images and audio files
+- **Background Detection**: Adaptive light/dark theme
+
+---
+
+## ChatInput
+
+Chat input component with voice recording, multimodal attachments, and drag-drop support.
+
+### Props
+
+<ParamField path="onSend" type="function" required>
+  ```typescript
+  onSend(text: string, images: string[], audios: string[]): void
+  ```
+  Callback when message is sent. Receives text, image data URLs, and audio data URLs.
+</ParamField>
+
+<ParamField path="onClose" type="function">
+  Callback when input is closed (Esc key)
+</ParamField>
+
+<ParamField path="onVoiceTranscription" type="function">
+  Callback for voice transcription results
+</ParamField>
+
+<ParamField path="onVoiceMode" type="function">
+  ```typescript
+  onVoiceMode(isActive: boolean): void
+  ```
+  Callback when voice conversation mode changes
+</ParamField>
+
+### Features
+
+- **Text Input**: Multi-line textarea with auto-resize
+- **Voice Recording**: One-shot speech-to-text
+- **Voice Conversation**: Continuous back-and-forth conversation
+- **Image Attachments**: Upload or paste up to 5 images (max 10MB each)
+- **Audio Attachments**: Upload up to 3 audio files (max 25MB each)
+- **Drag & Drop**: Drop files directly onto input
+- **Keyboard Shortcuts**: Enter to send, Shift+Enter for new line, Esc to close
+
+---
+
+## BabylonScene
+
+Babylon.js 3D scene component managing scene initialization, rendering, and cleanup.
+
+### Props
+
+<ParamField path="sceneBuilder" type="function">
+  ```typescript
+  sceneBuilder(
+    canvas: HTMLCanvasElement,
+    engine: Engine,
+    config: SceneConfig
+  ): Promise<Scene>
+  ```
+  Custom scene builder function. Receives canvas, engine, and config.
+</ParamField>
+
+<ParamField path="onSceneReady" type="function">
+  ```typescript
+  onSceneReady(scene: Scene): void
+  ```
+  Callback when scene is ready. Receives Babylon.js Scene object.
+</ParamField>
+
+<ParamField path="onLoadProgress" type="function">
+  ```typescript
+  onLoadProgress(progress: number): void
+  ```
+  Callback for loading progress updates (0-100).
+</ParamField>
+
+<ParamField path="sceneConfig" type="object" default={{}}>
+  Scene configuration object passed to builder
+</ParamField>
+
+<ParamField path="positionManagerRef" type="object">
+  Ref to PositionManager instance for drag-drop overlay positioning
+</ParamField>
+
+<ParamField path="isPreview" type="boolean" default={false}>
+  Render as inline preview instead of full-screen portal
+</ParamField>
+
+<ParamField path="previewWidth" type="string" default="100%">
+  Width for preview mode
+</ParamField>
+
+<ParamField path="previewHeight" type="string" default="100%">
+  Height for preview mode
+</ParamField>
+
+<ParamField path="previewClassName" type="string" default="">
+  Additional CSS classes for preview container
+</ParamField>
+
+### Features
+
+- **Automatic Initialization**: Creates engine and scene on mount
+- **FPS Limiting**: Configurable frame rate limiting (30/60/90/native)
+- **Drag & Drop Overlay**: Positioned over 3D model for file drops
+- **Resource Cleanup**: Proper disposal of Babylon resources on unmount
+- **Portal Rendering**: Renders to document.body in production mode
+- **Preview Mode**: Inline rendering for setup/configuration UIs
+
+### Scene Metadata
+
+The scene builder should attach managers to `scene.metadata`:
+
+```javascript
+scene.metadata = {
+  animationManager: animationManager,
+  positionManager: positionManager,
+};
+```
+
+---
+
+## Usage Examples
+
+<Accordion title="Basic Virtual Assistant">
+```jsx
+import { useRef } from 'react';
+import VirtualAssistant from './components/VirtualAssistant';
+
+function App() {
+  const assistantRef = useRef();
+
+  const handleReady = ({ animationManager, positionManager }) => {
+    console.log('Assistant ready!');
+  };
+
+  const handleSpeak = async () => {
+    await assistantRef.current.speak(
+      "Hello, how can I help you?",
+      vmdBlobUrl,
+      "talking"
+    );
+  };
+
+  return (
+    <>
+      <VirtualAssistant ref={assistantRef} onReady={handleReady} />
+      <button onClick={handleSpeak}>Speak</button>
+    </>
+  );
+}
+```
+</Accordion>
+
+<Accordion title="Chat with Input">
+```jsx
+import ChatContainer from './components/ChatContainer';
+import ChatInput from './components/ChatInput';
+
+function ChatApp() {
+  const handleSend = (text, images, audios) => {
+    console.log('Message:', text);
+    console.log('Images:', images.length);
+    console.log('Audios:', audios.length);
+  };
+
+  const handleDragDrop = (data) => {
+    console.log('Dropped data:', data);
+  };
+
+  return (
+    <>
+      <ChatContainer onDragDrop={handleDragDrop} />
+      <ChatInput onSend={handleSend} />
+    </>
+  );
+}
+```
+</Accordion>
+
+<Accordion title="Custom 3D Scene">
+```jsx
+import BabylonScene from './components/BabylonScene';
+
+function Custom3DApp() {
+  const buildScene = async (canvas, engine, config) => {
+    const scene = new Scene(engine);
+    // ... setup camera, lights, meshes
+    return scene;
+  };
+
+  const handleSceneReady = (scene) => {
+    console.log('Scene ready!', scene);
+  };
+
+  const handleProgress = (progress) => {
+    console.log('Loading:', progress + '%');
+  };
+
+  return (
+    <BabylonScene
+      sceneBuilder={buildScene}
+      onSceneReady={handleSceneReady}
+      onLoadProgress={handleProgress}
+    />
+  );
+}
+```
+</Accordion>

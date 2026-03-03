@@ -1,0 +1,313 @@
+---
+title: Contributing Guide
+description: How to contribute to VAssist development
+---
+
+Thanks for your interest in contributing! This guide covers everything you need to know about development setup, testing, and submitting contributions.
+
+## Development Setup
+
+### Prerequisites
+
+Before you begin, make sure you have:
+
+- **Node.js 18+** or **Bun 1.0+** (Bun is recommended for faster builds)
+- **Chrome 138+** for testing the extension
+- **Git** for version control
+
+### Getting Started
+
+<Steps>
+  <Step title="Clone the repository">
+    ```bash
+    git clone https://github.com/b1ink0/vassist.git
+    cd vassist
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    <CodeGroup>
+      ```bash Bun (Recommended)
+      bun install
+      ```
+
+      ```bash npm
+      npm install
+      ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Start development">
+    Choose your development mode:
+
+    <CodeGroup>
+      ```bash Demo Mode
+      bun run dev
+      ```
+
+      ```bash Extension Mode
+      bun run build:extension
+      ```
+
+      ```bash Both Modes
+      bun run dev:all
+      ```
+    </CodeGroup>
+  </Step>
+</Steps>
+
+## Available Commands
+
+### Development Commands
+
+<CodeGroup>
+  ```bash Demo Dev Server
+  bun run dev
+  # Starts dev server at http://localhost:5173
+  ```
+
+  ```bash Extension Watch Mode
+  bun run dev:extension
+  # Builds extension in watch mode
+  ```
+
+  ```bash Both Simultaneously
+  bun run dev:all
+  # Runs both demo and extension in watch mode
+  ```
+</CodeGroup>
+
+### Production Commands
+
+<CodeGroup>
+  ```bash Build Demo
+  bun run build
+  # Production build for demo site
+  ```
+
+  ```bash Build Extension
+  bun run build:extension
+  # Production build for Chrome extension
+  ```
+
+  ```bash Build Both
+  bun run build:all
+  # Builds both demo and extension
+  ```
+</CodeGroup>
+
+### Utility Commands
+
+<CodeGroup>
+  ```bash Lint Code
+  bun run lint
+  # Run ESLint checks
+  ```
+
+  ```bash Preview Build
+  bun run preview
+  # Preview production build locally
+  ```
+</CodeGroup>
+
+## Testing Your Changes
+
+### Manual Testing Checklist
+
+Before submitting a pull request, test in both modes:
+
+**Demo Mode Testing:**
+- [ ] `bun run dev` starts without errors
+- [ ] Feature works as expected
+- [ ] No console errors
+- [ ] Performance is acceptable
+- [ ] Hot reload works correctly
+
+**Extension Mode Testing:**
+- [ ] `bun run build:extension` completes successfully
+- [ ] Extension loads in Chrome without errors
+- [ ] Feature works on multiple websites (YouTube, Twitter, Gmail, GitHub)
+- [ ] No CSS conflicts with host pages
+- [ ] Multi-tab behavior is correct (if applicable)
+- [ ] Shadow DOM isolation is maintained
+
+**Cross-browser Testing:**
+- [ ] Test in Chrome stable
+- [ ] Test in Chrome Canary (for new APIs)
+
+<Note>
+  Focus testing on both demo and extension modes since they share 95% of the code. A bug in one mode likely affects both.
+</Note>
+
+## Debugging
+
+### Demo Mode Debugging
+
+1. **Open DevTools** (F12) and check the Console tab
+2. **Use React DevTools** for component debugging
+3. **Monitor Network tab** for API calls
+4. **Enable Debug Panel** in Settings → UI to see FPS, memory, and animation state
+
+### Extension Mode Debugging
+
+**Content Script:**
+- Open DevTools (F12) on the webpage
+- Look for `[Content]` prefixed logs
+
+**Background Service Worker:**
+- Right-click extension icon → "Inspect service worker"
+- Look for `[Background]` prefixed logs
+
+**Offscreen Document:**
+- Check background console for `[Offscreen]` logs
+- Used for heavy audio processing and Kokoro TTS
+
+**Main World (React App):**
+- Open DevTools on the webpage
+- React app runs in main world but renders in Shadow DOM
+
+<Note>
+  Each layer has distinct logging prefixes to help you trace message flow through the architecture.
+</Note>
+
+## Adding Features
+
+### Adding a New AI Provider
+
+<Steps>
+  <Step title="Create demo service">
+    Create service class in `src/services/` for direct API calls in demo mode.
+  </Step>
+
+  <Step title="Create background service">
+    Create background service in `extension/background/services/` for extension mode.
+  </Step>
+
+  <Step title="Add proxy">
+    Create proxy in `src/services/proxies/` to automatically route between demo and extension modes.
+  </Step>
+
+  <Step title="Register provider">
+    Add provider configuration to `src/config/aiConfig.js`.
+  </Step>
+</Steps>
+
+### Adding UI Components
+
+Components in `src/components/` automatically work in both modes. Just create your component and import it where needed.
+
+```jsx
+// Components work identically in both modes
+import MyComponent from './components/MyComponent';
+```
+
+### Adding Settings
+
+<Steps>
+  <Step title="Add default value">
+    Update `src/config/uiConfig.js` with the new setting's default value.
+  </Step>
+
+  <Step title="Create settings panel">
+    Add a settings panel component in `src/components/settings/`.
+  </Step>
+
+  <Step title="Use in components">
+    Use the `useConfig` hook to read and update the setting:
+
+    ```jsx
+    const { config, updateConfig } = useConfig();
+    const mySetting = config.mySetting;
+    ```
+  </Step>
+</Steps>
+
+## Pull Request Process
+
+<Steps>
+  <Step title="Fork and create branch">
+    Fork the repository and create a feature branch:
+
+    ```bash
+    git checkout -b feature/my-new-feature
+    ```
+  </Step>
+
+  <Step title="Make your changes">
+    - Follow existing code style and conventions
+    - Keep changes focused on a single feature or fix
+    - Add comments for complex logic
+  </Step>
+
+  <Step title="Test thoroughly">
+    Complete the testing checklist above for both demo and extension modes.
+  </Step>
+
+  <Step title="Commit with clear messages">
+    ```bash
+    git commit -m "Add: New feature description"
+    git commit -m "Fix: Bug description"
+    git commit -m "Update: Enhancement description"
+    ```
+  </Step>
+
+  <Step title="Push and create PR">
+    ```bash
+    git push origin feature/my-new-feature
+    ```
+
+    Then create a pull request on GitHub.
+  </Step>
+
+  <Step title="Describe your changes">
+    In your PR description, include:
+
+    - What changed and why
+    - How you tested it (demo mode, extension mode, specific sites)
+    - Screenshots or videos if UI changes are involved
+    - Any breaking changes or migration notes
+  </Step>
+</Steps>
+
+## Code Style Guidelines
+
+- **Use ES6+ features** (async/await, arrow functions, destructuring)
+- **Component structure**: Functional components with hooks
+- **File naming**: PascalCase for components, camelCase for utilities
+- **Imports**: Group by external, internal, relative
+- **Logging**: Use `Logger.log()` with appropriate prefixes
+
+## Resources
+
+### External Documentation
+
+- [React Documentation](https://react.dev)
+- [Babylon.js Documentation](https://doc.babylonjs.com)
+- [Chrome Extension Documentation](https://developer.chrome.com/docs/extensions)
+- [Chrome AI APIs](https://developer.chrome.com/docs/ai/built-in)
+
+### Getting Help
+
+- **Questions**: Open a [Discussion](https://github.com/b1ink0/vassist/discussions)
+- **Bugs**: Open an [Issue](https://github.com/b1ink0/vassist/issues)
+- **Architecture questions**: See [Architecture Overview](/development/architecture)
+
+## What to Contribute
+
+### Good First Issues
+
+- Documentation improvements
+- UI/UX enhancements
+- Bug fixes
+- Test coverage
+- Performance optimizations
+
+### Feature Ideas
+
+- New AI provider integrations
+- Additional animation types
+- Voice/TTS provider options
+- Accessibility improvements
+- Internationalization (i18n)
+
+Thank you for contributing to VAssist!

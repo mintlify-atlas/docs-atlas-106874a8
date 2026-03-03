@@ -1,0 +1,669 @@
+---
+title: 'Configuration Reference'
+description: 'Configuration options for AI providers, TTS, STT, animations, and UI'
+---
+
+# Configuration
+
+Configuration objects for AI providers, text-to-speech, speech-to-text, animations, and UI settings.
+
+---
+
+## DefaultAIConfig
+
+Default AI provider configuration with support for Chrome AI, OpenAI, and Ollama.
+
+### Structure
+
+```javascript
+const DefaultAIConfig = {
+  provider: 'chrome-ai', // 'chrome-ai' | 'openai' | 'ollama'
+  
+  chromeAi: {
+    temperature: 1.0,
+    topK: 3,
+    outputLanguage: 'en', // 'en' | 'es' | 'ja'
+    enableImageSupport: true,
+    enableAudioSupport: true,
+    systemPromptType: 'default',
+    systemPrompt: '',
+  },
+  
+  openai: {
+    apiKey: '',
+    model: 'gpt-4-turbo-preview',
+    temperature: 0.7,
+    maxTokens: 2000,
+    enableImageSupport: true,
+    enableAudioSupport: true,
+    systemPromptType: 'default',
+    systemPrompt: '',
+  },
+  
+  ollama: {
+    endpoint: 'http://localhost:11434',
+    model: 'llama2',
+    temperature: 0.7,
+    maxTokens: 2000,
+    enableImageSupport: true,
+    enableAudioSupport: true,
+    systemPromptType: 'default',
+    systemPrompt: '',
+  },
+  
+  systemPrompt: 'You are a helpful virtual assistant.',
+  
+  aiFeatures: {
+    translator: {
+      enabled: true,
+      defaultTargetLanguage: 'en',
+    },
+    languageDetector: {
+      enabled: true,
+    },
+    summarizer: {
+      enabled: true,
+      defaultType: 'tldr',
+      defaultFormat: 'plain-text',
+      defaultLength: 'medium',
+    },
+    rewriter: {
+      enabled: true,
+      defaultTone: 'as-is',
+      defaultFormat: 'as-is',
+      defaultLength: 'as-is',
+    },
+    writer: {
+      enabled: true,
+      defaultTone: 'neutral',
+      defaultFormat: 'plain-text',
+      defaultLength: 'medium',
+    },
+  },
+};
+```
+
+### Chrome AI Settings
+
+<ParamField path="chromeAi.temperature" type="number" default={1.0}>
+  Sampling temperature (0.0-2.0). Higher = more random.
+</ParamField>
+
+<ParamField path="chromeAi.topK" type="number" default={3}>
+  Top-K sampling. Lower = more focused, higher = more diverse.
+</ParamField>
+
+<ParamField path="chromeAi.outputLanguage" type="string" default="en">
+  Model output language: 'en' | 'es' | 'ja'
+</ParamField>
+
+<ParamField path="chromeAi.enableImageSupport" type="boolean" default={true}>
+  Enable multi-modal image support (requires Chrome AI multimodal flag)
+</ParamField>
+
+<ParamField path="chromeAi.enableAudioSupport" type="boolean" default={true}>
+  Enable multi-modal audio support (requires Chrome AI multimodal flag)
+</ParamField>
+
+<ParamField path="chromeAi.systemPromptType" type="string" default="default">
+  Personality type from PromptConfig.systemPrompts or 'custom'
+</ParamField>
+
+<ParamField path="chromeAi.systemPrompt" type="string" default="">
+  Custom system prompt (only used when systemPromptType is 'custom')
+</ParamField>
+
+### OpenAI Settings
+
+<ParamField path="openai.apiKey" type="string" required>
+  OpenAI API key
+</ParamField>
+
+<ParamField path="openai.model" type="string" default="gpt-4-turbo-preview">
+  Model name: 'gpt-4' | 'gpt-4-turbo-preview' | 'gpt-4o' | 'gpt-3.5-turbo'
+</ParamField>
+
+<ParamField path="openai.temperature" type="number" default={0.7}>
+  Sampling temperature (0.0-2.0)
+</ParamField>
+
+<ParamField path="openai.maxTokens" type="number" default={2000}>
+  Maximum tokens in response
+</ParamField>
+
+<ParamField path="openai.enableImageSupport" type="boolean" default={true}>
+  Enable multi-modal image support (GPT-4 Vision)
+</ParamField>
+
+<ParamField path="openai.enableAudioSupport" type="boolean" default={true}>
+  Enable audio transcription via Whisper
+</ParamField>
+
+### Ollama Settings
+
+<ParamField path="ollama.endpoint" type="string" default="http://localhost:11434">
+  Ollama server endpoint
+</ParamField>
+
+<ParamField path="ollama.model" type="string" default="llama2">
+  Model name (e.g., 'llama2', 'mistral', 'mixtral', 'llava')
+</ParamField>
+
+<ParamField path="ollama.temperature" type="number" default={0.7}>
+  Sampling temperature
+</ParamField>
+
+<ParamField path="ollama.maxTokens" type="number" default={2000}>
+  Maximum tokens in response
+</ParamField>
+
+<ParamField path="ollama.enableImageSupport" type="boolean" default={true}>
+  Enable multi-modal image support (requires vision model like LLaVA)
+</ParamField>
+
+---
+
+## DefaultTTSConfig
+
+Default Text-to-Speech configuration with support for Kokoro, OpenAI TTS, and generic APIs.
+
+### Structure
+
+```javascript
+const DefaultTTSConfig = {
+  enabled: false,
+  provider: 'kokoro', // 'kokoro' | 'openai' | 'openai-compatible'
+  
+  kokoro: {
+    modelId: 'onnx-community/Kokoro-82M-v1.0-ONNX',
+    voice: 'af_heart',
+    speed: 1.0,
+    device: 'auto', // 'auto' | 'webgpu' | 'wasm'
+    keepModelLoaded: true,
+  },
+  
+  openai: {
+    apiKey: '',
+    model: 'tts-1', // 'tts-1' | 'tts-1-hd'
+    voice: 'nova', // 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer'
+    speed: 1.0,
+  },
+  
+  'openai-compatible': {
+    endpoint: 'http://localhost:8000',
+    apiKey: '',
+    model: 'tts',
+    voice: 'default',
+    speed: 1.0,
+  },
+  
+  chunkSize: 500,
+  minChunkSize: 100,
+};
+```
+
+### Kokoro TTS Settings
+
+<ParamField path="kokoro.modelId" type="string" default="onnx-community/Kokoro-82M-v1.0-ONNX">
+  HuggingFace model ID for Kokoro TTS
+</ParamField>
+
+<ParamField path="kokoro.voice" type="string" default="af_heart">
+  Voice ID. Available voices:
+  - **Female American**: af_heart, af_alloy, af_aoede, af_bella, af_jessica, af_kore, af_nicole, af_nova, af_river, af_sarah, af_sky
+  - **Male American**: am_adam, am_echo, am_eric, am_fenrir, am_liam, am_michael, am_onyx, am_puck, am_santa
+  - **Female British**: bf_alice, bf_emma, bf_isabella, bf_lily
+  - **Male British**: bm_daniel, bm_fable, bm_george, bm_lewis
+</ParamField>
+
+<ParamField path="kokoro.speed" type="number" default={1.0}>
+  Speech speed multiplier (0.25-4.0)
+</ParamField>
+
+<ParamField path="kokoro.device" type="string" default="auto">
+  Inference backend:
+  - `'auto'`: WebGPU if available, else WASM
+  - `'webgpu'`: GPU acceleration (2-10x faster, fp32/fp16 dtype)
+  - `'wasm'`: CPU fallback (universal compatibility, q8 dtype)
+</ParamField>
+
+<ParamField path="kokoro.keepModelLoaded" type="boolean" default={true}>
+  Keep model in memory between generations (faster but uses ~163MB RAM)
+</ParamField>
+
+### OpenAI TTS Settings
+
+<ParamField path="openai.apiKey" type="string" required>
+  OpenAI API key
+</ParamField>
+
+<ParamField path="openai.model" type="string" default="tts-1">
+  TTS model: 'tts-1' (fast) | 'tts-1-hd' (high quality)
+</ParamField>
+
+<ParamField path="openai.voice" type="string" default="nova">
+  Voice: 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer'
+</ParamField>
+
+<ParamField path="openai.speed" type="number" default={1.0}>
+  Speech speed (0.25-4.0)
+</ParamField>
+
+### Chunking Settings
+
+<ParamField path="chunkSize" type="number" default={500}>
+  Target chunk size in characters for streaming TTS
+</ParamField>
+
+<ParamField path="minChunkSize" type="number" default={100}>
+  Minimum chunk size (prevents too many tiny chunks)
+</ParamField>
+
+---
+
+## DefaultSTTConfig
+
+Default Speech-to-Text configuration with support for Chrome AI, OpenAI Whisper, and generic APIs.
+
+### Structure
+
+```javascript
+const DefaultSTTConfig = {
+  enabled: false,
+  provider: 'chrome-ai-multimodal', // 'chrome-ai-multimodal' | 'openai' | 'openai-compatible'
+  
+  'chrome-ai-multimodal': {
+    temperature: 0.1,
+    topK: 3,
+  },
+  
+  openai: {
+    apiKey: '',
+    model: 'whisper-1',
+    language: 'en',
+    temperature: 0.0,
+  },
+  
+  'openai-compatible': {
+    endpoint: 'http://localhost:8000',
+    apiKey: '',
+    model: 'whisper',
+    language: 'en',
+    temperature: 0.0,
+  },
+};
+```
+
+### Chrome AI Multimodal Settings
+
+<ParamField path="chrome-ai-multimodal.temperature" type="number" default={0.1}>
+  Low temperature for accurate transcription
+</ParamField>
+
+<ParamField path="chrome-ai-multimodal.topK" type="number" default={3}>
+  Top-K sampling for token selection
+</ParamField>
+
+### OpenAI Whisper Settings
+
+<ParamField path="openai.apiKey" type="string" required>
+  OpenAI API key
+</ParamField>
+
+<ParamField path="openai.model" type="string" default="whisper-1">
+  Whisper model (currently only 'whisper-1' available)
+</ParamField>
+
+<ParamField path="openai.language" type="string" default="en">
+  Input audio language (ISO 639-1 code)
+</ParamField>
+
+<ParamField path="openai.temperature" type="number" default={0.0}>
+  Temperature for transcription (0.0 = deterministic)
+</ParamField>
+
+---
+
+## AnimationConfig
+
+Animation configuration defines available animations, categories, and transition settings.
+
+### Animation Categories
+
+```javascript
+export const AnimationCategory = {
+  IDLE: 'idle',
+  THINKING: 'thinking',
+  CELEBRATING: 'celebrating',
+  WALKING: 'walking',
+  TALKING: 'talking',
+};
+```
+
+### Assistant States
+
+```javascript
+export const AssistantState = {
+  INTRO: 'INTRO',         // Initial entrance
+  IDLE: 'IDLE',           // Default idle state
+  BUSY: 'BUSY',           // Doing something
+  SPEAKING: 'SPEAKING',   // Talking to user
+  SPEAKING_HOLD: 'SPEAKING_HOLD', // Holding between TTS chunks
+  CELEBRATING: 'CELEBRATING', // Celebration animation
+  COMPOSITE: 'COMPOSITE', // Blended composite
+};
+```
+
+### Transition Settings
+
+<ParamField path="DEFAULT_TRANSITION_FRAMES" type="number" default={30}>
+  Default transition duration (1 second at 30fps)
+</ParamField>
+
+<ParamField path="DEFAULT_EASING_CURVE" type="object">
+  Bezier easing curve for smooth S-curve transitions:
+  ```javascript
+  {
+    x1: 0.25,
+    y1: 0.1,
+    x2: 0.75,
+    y2: 0.9,
+  }
+  ```
+</ParamField>
+
+<ParamField path="QUICK_TRANSITION_FRAMES" type="number" default={15}>
+  Quick transition duration (0.5 seconds)
+</ParamField>
+
+<ParamField path="SLOW_TRANSITION_FRAMES" type="number" default={60}>
+  Slow transition duration (2 seconds)
+</ParamField>
+
+### Animation Registry
+
+Animations are organized by category:
+
+```javascript
+export const AnimationRegistry = {
+  idle: [
+    {
+      id: 'idle_1',
+      name: 'Idle 1',
+      filePath: 'res/assets/motion/idle1.bvmd',
+      transitionFrames: 30,
+      loop: true,
+      loopTransition: true,
+      weight: 1.0,
+      metadata: {
+        description: 'Primary idle animation',
+        tags: ['default', 'idle', 'calm'],
+      },
+    },
+    // ... more idle animations
+  ],
+  thinking: [ /* ... */ ],
+  celebrating: [ /* ... */ ],
+  walking: [ /* ... */ ],
+  talking: [ /* ... */ ],
+};
+```
+
+### Animation Entry Fields
+
+<ParamField path="id" type="string" required>
+  Unique identifier for the animation
+</ParamField>
+
+<ParamField path="name" type="string" required>
+  Human-readable name
+</ParamField>
+
+<ParamField path="filePath" type="string" required>
+  Path to .bvmd animation file (resolved at runtime)
+</ParamField>
+
+<ParamField path="transitionFrames" type="number" default={30}>
+  Transition duration when entering/exiting
+</ParamField>
+
+<ParamField path="loop" type="boolean" default={false}>
+  Whether animation should loop
+</ParamField>
+
+<ParamField path="loopTransition" type="boolean" default={false}>
+  Smooth blend between loop cycles (creates overlap)
+</ParamField>
+
+<ParamField path="weight" type="number" default={1.0}>
+  Default blending weight (0.0-1.0)
+</ParamField>
+
+<ParamField path="metadata" type="object">
+  Additional information:
+  - `description`: Detailed description
+  - `tags`: Array of tags for categorization
+</ParamField>
+
+---
+
+## UIConfig
+
+User interface configuration for positioning, appearance, and behavior.
+
+### Structure
+
+```javascript
+export const DefaultUIConfig = {
+  enableModelLoading: true,
+  enablePortraitMode: false,
+  fpsLimit: 60, // 30 | 60 | 90 | 'native'
+  autoLoadOnAllPages: true,
+  enableAIToolbar: true,
+  
+  aiToolbar: {
+    showOnInputFocus: true,
+    showOnImageHover: true,
+  },
+  
+  enableColoredIcons: false,
+  enableColoredIconsToolbarOnly: false,
+  enableDebugPanel: false,
+  
+  position: {
+    preset: 'bottom-right',
+    lastLocation: null,
+  },
+  
+  backgroundDetection: {
+    mode: 'adaptive', // 'adaptive' | 'light' | 'dark'
+    sampleGridSize: 5,
+    showDebug: false,
+  },
+  
+  smoothStreamingAnimation: false,
+  
+  shortcuts: {
+    enabled: false,
+    openChat: '',
+    toggleMode: '',
+  },
+};
+```
+
+### Display Settings
+
+<ParamField path="enableModelLoading" type="boolean" default={true}>
+  Show 3D character model
+</ParamField>
+
+<ParamField path="enablePortraitMode" type="boolean" default={false}>
+  Enable portrait mode (clips model at waist, shows upper body only)
+</ParamField>
+
+<ParamField path="fpsLimit" type="number | string" default={60}>
+  Frame rate limit: 30 | 60 | 90 | 'native'
+</ParamField>
+
+<ParamField path="autoLoadOnAllPages" type="boolean" default={true}>
+  Auto-load assistant on all pages (extension mode only)
+</ParamField>
+
+### AI Toolbar Settings
+
+<ParamField path="enableAIToolbar" type="boolean" default={true}>
+  Enable floating AI toolbar for text/image operations
+</ParamField>
+
+<ParamField path="aiToolbar.showOnInputFocus" type="boolean" default={true}>
+  Show toolbar when focusing text inputs (for dictation)
+</ParamField>
+
+<ParamField path="aiToolbar.showOnImageHover" type="boolean" default={true}>
+  Show toolbar when hovering over images
+</ParamField>
+
+### Position Presets
+
+Available position presets:
+- `'bottom-right'`: Default chatbot position
+- `'bottom-left'`: Bottom-left corner
+- `'bottom-center'`: Bottom center
+- `'center'`: Large centered view
+- `'top-right'`: Top-right corner
+- `'top-left'`: Top-left corner
+- `'top-center'`: Top center
+- `'last-location'`: Restore last saved position
+
+### Position Preset Structure
+
+```javascript
+{
+  name: 'Bottom Right',
+  modelSize: { width: 300, height: 500 },
+  portraitModelSize: { width: 300, height: 500 },
+  padding: 0,
+  offset: { x: -2, y: 2 },
+  portraitOffset: { x: 0, y: 6.2 },
+  customBoundaries: { left: 80, right: 0, top: 100, bottom: 0 },
+  portraitCustomBoundaries: { left: 0, right: 0, top: 100, bottom: 0 },
+  portraitClipPlaneY: 12,
+  description: 'Default chatbot position'
+}
+```
+
+### Background Detection Settings
+
+<ParamField path="backgroundDetection.mode" type="string" default="adaptive">
+  Theme mode:
+  - `'adaptive'`: Auto-detect background brightness
+  - `'light'`: Force light theme
+  - `'dark'`: Force dark theme
+</ParamField>
+
+<ParamField path="backgroundDetection.sampleGridSize" type="number" default={5}>
+  Grid size for brightness sampling (5 = 25 sample points)
+</ParamField>
+
+<ParamField path="backgroundDetection.showDebug" type="boolean" default={false}>
+  Show debug markers for brightness detection
+</ParamField>
+
+### Chat Settings
+
+<ParamField path="smoothStreamingAnimation" type="boolean" default={false}>
+  Enable smooth character-by-character streaming animation
+</ParamField>
+
+### Keyboard Shortcuts
+
+<ParamField path="shortcuts.enabled" type="boolean" default={false}>
+  Enable keyboard shortcuts
+</ParamField>
+
+<ParamField path="shortcuts.openChat" type="string" default="">
+  Shortcut to open chat (e.g., 'Ctrl+Shift+A')
+</ParamField>
+
+<ParamField path="shortcuts.toggleMode" type="string" default="">
+  Shortcut to toggle portrait mode
+</ParamField>
+
+---
+
+## Usage Examples
+
+<Accordion title="Configure Chrome AI">
+```javascript
+import { DefaultAIConfig } from './config/aiConfig';
+import AIServiceProxy from './services/proxies/AIServiceProxy';
+
+// Override defaults
+const config = {
+  ...DefaultAIConfig,
+  provider: 'chrome-ai',
+  chromeAi: {
+    ...DefaultAIConfig.chromeAi,
+    temperature: 0.8,
+    enableImageSupport: true,
+    enableAudioSupport: true,
+  },
+};
+
+await AIServiceProxy.configure(config);
+```
+</Accordion>
+
+<Accordion title="Configure Kokoro TTS">
+```javascript
+import { DefaultTTSConfig } from './config/aiConfig';
+import { TTSServiceProxy } from './services/proxies';
+
+const config = {
+  ...DefaultTTSConfig,
+  enabled: true,
+  provider: 'kokoro',
+  kokoro: {
+    modelId: 'onnx-community/Kokoro-82M-v1.0-ONNX',
+    voice: 'af_sarah',
+    speed: 1.2,
+    device: 'webgpu',
+    keepModelLoaded: true,
+  },
+};
+
+TTSServiceProxy.configure(config);
+```
+</Accordion>
+
+<Accordion title="Set Model Position">
+```javascript
+import { PositionPresets } from './config/uiConfig';
+
+// Use preset
+assistantRef.current.setPosition('bottom-right');
+
+// Or get position manager and customize
+const posMgr = assistantRef.current.getPositionManager();
+posMgr.applyPreset('center');
+```
+</Accordion>
+
+<Accordion title="Custom UI Configuration">
+```javascript
+import { DefaultUIConfig } from './config/uiConfig';
+import { useConfig } from './contexts/ConfigContext';
+
+function MyApp() {
+  const { updateUIConfig } = useConfig();
+
+  // Update multiple settings
+  updateUIConfig('enablePortraitMode', true);
+  updateUIConfig('fpsLimit', 90);
+  updateUIConfig('position.preset', 'bottom-center');
+  updateUIConfig('backgroundDetection.mode', 'dark');
+  
+  return <VirtualAssistant />;
+}
+```
+</Accordion>

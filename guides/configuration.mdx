@@ -1,0 +1,267 @@
+---
+title: Configuration
+description: Configure VAssist settings, UI preferences, debug options, and storage
+---
+
+## Opening Settings
+
+Access VAssist configuration through the Control Panel:
+
+1. **Click the Settings Icon** in the chat interface (gear icon)
+2. **Navigate between tabs** to configure different aspects:
+   - **AI Config**: AI provider and model settings
+   - **TTS**: Text-to-speech configuration
+   - **STT**: Speech-to-text configuration
+   - **Features**: Enable/disable AI features
+   - **UI**: Interface and appearance settings
+
+Settings are automatically saved to browser storage and persist across sessions.
+
+## UI Preferences
+
+### Auto-Load Behavior
+
+<ParamField path="autoLoadOnAllPages" type="boolean" default="true">
+  Control whether the extension loads automatically on every page.
+  
+  - **Enabled**: Extension loads on all websites automatically
+  - **Disabled**: Click the extension icon to manually load on each page
+  
+  *Available in extension mode only*
+</ParamField>
+
+### Icon Style
+
+<ParamField path="enableColoredIcons" type="boolean" default="false">
+  Toggle between colored and monochrome icons throughout the interface.
+</ParamField>
+
+<ParamField path="enableColoredIconsToolbarOnly" type="boolean" default="false">
+  When colored icons are enabled, restrict colors to the AI toolbar only.
+  
+  Other interface elements will use monochrome icons for a cleaner look.
+</ParamField>
+
+### Application Theme
+
+Configure how VAssist adapts to different webpage backgrounds:
+
+<Tabs>
+  <Tab title="Adaptive Mode">
+    **Automatically detects** the page background color and adjusts the assistant's theme for optimal contrast.
+    
+    ```javascript
+    backgroundDetection: {
+      mode: 'adaptive',
+      sampleGridSize: 5,  // 3-10: Higher = more accurate detection
+      showDebug: false
+    }
+    ```
+    
+    **Sample Grid Size**: Controls detection accuracy
+    - Range: 3-10 samples
+    - Higher values = more accurate but slightly slower
+    - Default: 5 (recommended balance)
+  </Tab>
+  
+  <Tab title="Light Mode">
+    **Force light theme** with dark chat elements on light backgrounds.
+    
+    ```javascript
+    backgroundDetection: {
+      mode: 'light'
+    }
+    ```
+    
+    Best for websites with predominantly white/light backgrounds.
+  </Tab>
+  
+  <Tab title="Dark Mode">
+    **Force dark theme** with light chat elements on dark backgrounds.
+    
+    ```javascript
+    backgroundDetection: {
+      mode: 'dark'
+    }
+    ```
+    
+    Best for websites with predominantly black/dark backgrounds.
+  </Tab>
+</Tabs>
+
+### Chat Interface
+
+<ParamField path="smoothStreamingAnimation" type="boolean" default="false">
+  Enable smooth height animation for streaming AI responses.
+  
+  <Warning>
+    **Performance Impact**: May affect performance on lower-end devices. Disable if you experience lag during responses.
+  </Warning>
+</ParamField>
+
+## Debug Options
+
+### Developer Tools
+
+<ParamField path="enableDebugPanel" type="boolean" default="false">
+  Show draggable debug panel with development tools.
+  
+  **Features**:
+  - Animation testing and controls
+  - Position/camera adjustments
+  - Performance metrics (FPS, draw calls, mesh count)
+  - State machine visualization
+  - Logger category controls
+</ParamField>
+
+### Accessing Debug Panel
+
+1. Enable "Developer Tools" in UI Settings
+2. Look for the **Dev Tools** button (usually top-right corner)
+3. Click and drag to reposition the button
+4. Click to open the debug panel
+
+### Debug Panel Features
+
+<Accordion title="Animation Controls">
+  - Play/pause animations
+  - Switch between animation states (IDLE, BUSY, SPEAKING, etc.)
+  - Test emotion mappings
+  - Preview animation transitions
+</Accordion>
+
+<Accordion title="Performance Monitoring">
+  Real-time metrics:
+  - **FPS**: Current frame rate
+  - **Meshes**: Active mesh count
+  - **Draw Calls**: Rendering performance
+  - **Particles**: Physics simulation load
+</Accordion>
+
+<Accordion title="Logger Controls">
+  Enable/disable logging by category:
+  - `ai` - AI service operations
+  - `tts` - Text-to-speech
+  - `stt` - Speech-to-text
+  - `animation` - Animation system
+  - `babylon` - 3D rendering
+  - `storage` - Data persistence
+  - `other` - General operations
+  
+  Search and filter log messages in real-time.
+</Accordion>
+
+## Storage Management
+
+### Storage Structure
+
+VAssist uses IndexedDB for persistent storage across browser sessions:
+
+```javascript
+// Configuration data
+storageManager.config.save('aiConfig', {...})
+storageManager.config.save('uiConfig', {...})
+storageManager.config.save('ttsConfig', {...})
+storageManager.config.save('sttConfig', {...})
+
+// Chat history
+storageManager.chat.save(chatId, {...})
+
+// Cache with TTL
+storageManager.cache.save('key', value, ttlSeconds)
+```
+
+### Storage Categories
+
+<Tabs>
+  <Tab title="Config">
+    **Application configuration** - AI provider settings, UI preferences, TTS/STT config
+    
+    - Persists across browser sessions
+    - Validated before saving to prevent corruption
+    - Automatically migrated on updates
+  </Tab>
+  
+  <Tab title="Chat">
+    **Chat history and messages** - Conversations, sessions, message metadata
+    
+    - Indexed by chat ID
+    - Supports export/import
+    - Can be cleared without affecting settings
+  </Tab>
+  
+  <Tab title="Cache">
+    **Temporary data with TTL** - API responses, computed results, session data
+    
+    - Automatically expires after TTL
+    - Cleaned up periodically
+    - Safe to clear anytime
+  </Tab>
+  
+  <Tab title="Settings">
+    **User preferences** - Non-critical settings, UI state, feature flags
+    
+    - Separate from core config
+    - Easy to reset without breaking functionality
+  </Tab>
+</Tabs>
+
+### Clearing Storage
+
+<Warning>
+  Clearing storage will **reset all settings** and delete chat history. This action cannot be undone.
+</Warning>
+
+**Via Browser DevTools**:
+
+1. Open DevTools (F12)
+2. Go to **Application** tab
+3. Find **IndexedDB** → `VAssistDB`
+4. Right-click → Delete
+
+**Programmatic Clear** (for development):
+
+```javascript
+// Clear all storage (dev/testing only)
+await storageManager.clearAll()
+
+// Clear specific categories
+await storageManager.config.clear()  // Reset all settings
+await storageManager.chat.clear()    // Delete chat history
+await storageManager.cache.clear()   // Clear cache
+```
+
+### Storage Statistics
+
+Check storage usage:
+
+```javascript
+const stats = await storageManager.getStats()
+console.log('Storage usage:', stats)
+// { totalRecords: 42, sizeEstimate: '2.3 MB', ... }
+```
+
+## Resetting to Defaults
+
+### Start Setup Wizard Again
+
+Re-run the initial configuration wizard:
+
+1. Open **UI Settings** tab
+2. Click **"Start Setup Wizard Again"**
+3. Confirm the action
+4. Page reloads and setup wizard begins
+
+<Note>
+  This resets the setup state but preserves your existing configuration. You can reconfigure settings through the wizard.
+</Note>
+
+### Factory Reset
+
+To completely reset VAssist:
+
+1. Clear browser storage (see above)
+2. Reload the page
+3. Complete setup wizard from scratch
+
+All chat history and custom settings will be permanently deleted.

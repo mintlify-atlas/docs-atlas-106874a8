@@ -1,0 +1,593 @@
+---
+title: Virtual Companion
+description: Animated 3D character with lip-synced speech, emotions, and interactive behaviors
+---
+
+The Virtual Companion is a fully animated 3D character that appears on your screen, making your AI interactions more engaging and human-like. Built with **Babylon.js**, it features realistic animations, lip-synced speech, and dynamic emotional expressions.
+
+<Frame>
+  <img src="/assets/companion.png" alt="Virtual Companion" />
+</Frame>
+
+## Overview
+
+The companion responds to your interactions with expressions, gestures, and animations that match the conversation context. It exists as a draggable overlay that can be positioned anywhere on your screen.
+
+<CardGroup cols={2}>
+  <Card title="Display Modes" icon="expand">
+    Switch between full body and portrait views
+  </Card>
+  <Card title="Animations" icon="film">
+    Idle, thinking, speaking, and celebration states
+  </Card>
+  <Card title="Lip Sync" icon="comment">
+    Real-time mouth movements synchronized to speech
+  </Card>
+  <Card title="Positioning" icon="arrows-up-down-left-right">
+    Drag anywhere on screen with per-preset saved positions
+  </Card>
+</CardGroup>
+
+## Display Modes
+
+Choose how your companion appears on screen:
+
+<Tabs>
+  <Tab title="Full Body">
+    <Frame>
+      <img src="/assets/companion.png" alt="Full body view" />
+    </Frame>
+    
+    **Full Body Mode** shows the complete 3D character:
+    
+    - Entire character model visible
+    - Full range of body animations
+    - Hand gestures and full-body expressions
+    - Larger canvas size for detailed animations
+    
+    **Best for**: Desktop browsing with larger screens
+  </Tab>
+  
+  <Tab title="Portrait">
+    **Portrait Mode** focuses on the character's upper body:
+    
+    - Head, shoulders, and upper torso
+    - Optimized facial expressions
+    - Lip sync more prominent
+    - Smaller canvas footprint
+    
+    **Best for**: Laptop screens or when you need more screen space
+  </Tab>
+</Tabs>
+
+### Switching Display Modes
+
+<Steps>
+  <Step title="Open Control Panel">
+    Click the VAssist icon in your browser toolbar
+  </Step>
+  <Step title="Navigate to Scene Settings">
+    Go to Settings → Scene Configuration
+  </Step>
+  <Step title="Select Display Mode">
+    Choose between Full Body and Portrait mode
+  </Step>
+  <Step title="Apply Changes">
+    Changes take effect immediately
+  </Step>
+</Steps>
+
+<CodeGroup>
+```javascript Display Mode Configuration
+import { SceneConfig } from './config/sceneConfig';
+
+// Configure display mode
+const config = {
+  cameraPreset: 'fullBody', // or 'portrait'
+  model: {
+    displayMode: 'full',  // 'full' or 'portrait'
+    scale: 1.0
+  }
+};
+```
+</CodeGroup>
+
+## Animations
+
+The companion uses a sophisticated animation system with multiple states and smooth transitions.
+
+### Animation States
+
+<AccordionGroup>
+  <Accordion title="Idle" icon="circle" defaultOpen>
+    **Default State** - Subtle breathing and natural movements
+    
+    - Random idle variations
+    - Occasional yawns and stretches
+    - Greeting gestures (waves hello)
+    - Smooth looping animations
+    
+    **Duration**: Continuous, switches variants every 10 seconds
+    
+    ```javascript
+    // Idle animations
+    const idleAnimations = [
+      'idle_1',      // Primary idle with subtle movements
+      'idle_2',      // Secondary idle variant
+      'idle_4_short',// Short idle loop
+      'yawn_1',      // Yawning animation
+      'yawn_2',      // Alternative yawn
+      'hi_1',        // Waving hello
+      'hi_2'         // Alternative greeting
+    ];
+    ```
+  </Accordion>
+  
+  <Accordion title="Thinking" icon="brain">
+    **Processing State** - Shows the AI is working
+    
+    - Thoughtful poses
+    - Hand-on-chin gestures
+    - Contemplative expressions
+    - Auto-switches between variants
+    
+    **Triggered when**:
+    - Waiting for AI response
+    - Processing complex queries
+    - Analyzing page content
+    
+    ```javascript
+    // Thinking animations
+    const thinkingAnimations = [
+      'thinking_1',  // Thoughtful pose
+      'thinking_2'   // Alternative thinking animation
+    ];
+    ```
+  </Accordion>
+  
+  <Accordion title="Speaking" icon="comment">
+    **Active Conversation** - Animated speech with lip sync
+    
+    - Body gestures matching emotion
+    - Real-time lip synchronization
+    - Blended with base animation
+    - Facial expressions
+    
+    **Emotion variants**:
+    - Excited - energetic gestures
+    - Calm - relaxed movements
+    - Nervous - anxious body language
+    - Angry - emphatic gestures
+    
+    ```javascript
+    // Talking animations by emotion
+    const talkingAnimations = {
+      excited: 'talk_excited',
+      nervous: 'talk_nervous',
+      calm: 'talk_calm',
+      angry: 'talk_angry'
+    };
+    ```
+  </Accordion>
+  
+  <Accordion title="Celebrating" icon="party-horn">
+    **Success State** - Positive feedback animations
+    
+    - Clapping hands
+    - Excited jumping
+    - Happy expressions
+    - One-shot animation
+    
+    **Triggered by**:
+    - Task completion
+    - Success messages
+    - Positive user interactions
+    
+    ```javascript
+    // Celebration animations
+    const celebratingAnimations = [
+      'clap_1'  // Clapping in celebration
+    ];
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Animation Blending
+
+The companion uses smooth animation blending for natural transitions:
+
+<CodeGroup>
+```javascript Animation Transitions
+import { TransitionSettings } from './config/animationConfig';
+
+// Smooth transitions between animations
+const transitionConfig = {
+  transitionFrames: 30,  // 1 second at 30fps
+  easingCurve: {
+    x1: 0.25,  // Bezier control points
+    y1: 0.1,
+    x2: 0.75,
+    y2: 0.9
+  }
+};
+
+// Blend from idle to thinking
+await animationManager.transition({
+  from: 'idle_1',
+  to: 'thinking_1',
+  duration: transitionConfig.transitionFrames
+});
+```
+</CodeGroup>
+
+**Key features**:
+- **Overlap blending** - Old animation fades out while new one fades in
+- **Bezier easing** - Smooth S-curve for natural motion
+- **Loop transitions** - Seamless cycling of looping animations
+- **Weight-based mixing** - Blend multiple animations simultaneously
+
+## Lip-Synced Speech
+
+The companion's mouth movements are synchronized in real-time with text-to-speech output using VMD (Vocaloid Motion Data) generation.
+
+### How Lip Sync Works
+
+<Steps>
+  <Step title="TTS Generation">
+    Kokoro.js generates speech audio from AI response text
+  </Step>
+  <Step title="Phoneme Analysis">
+    Audio is analyzed to extract phoneme timing data
+  </Step>
+  <Step title="VMD Creation">
+    Phonemes are mapped to mouth shapes (visemes) and converted to VMD format
+  </Step>
+  <Step title="Animation Playback">
+    VMD animation is applied to the character's mouth morphs in real-time
+  </Step>
+</Steps>
+
+<CodeGroup>
+```javascript Lip Sync Pipeline
+import { VMDHandler } from './services/VMDHandler';
+import { TTSService } from './services/TTSService';
+
+// Generate speech with lip sync
+const { audio, vmd } = await TTSService.synthesize(text, {
+  generateVMD: true,
+  voice: 'af_heart',
+  speed: 1.0
+});
+
+// Play audio and sync mouth movements
+await virtualAssistant.speak({
+  audio,
+  vmdData: vmd,
+  baseAnimation: 'talk_calm'
+});
+```
+</CodeGroup>
+
+### Viseme Mapping
+
+The companion uses standard viseme shapes for realistic mouth movements:
+
+| Viseme | Phonemes | Example Words |
+|--------|----------|---------------|
+| A | ah, aa | f**a**ther, h**o**t |
+| E | eh, ae | b**e**d, c**a**t |
+| I | ih, iy | b**i**t, s**ee** |
+| O | oh, ao | g**o**, c**au**ght |
+| U | uh, uw | b**oo**k, f**oo**d |
+| M | m, p, b | **m**om, **p**et, **b**ig |
+| F | f, v | **f**ox, **v**an |
+| TH | th, dh | **th**ink, **th**is |
+| S | s, z | **s**it, **z**oo |
+| T | t, d, n | **t**op, **d**og, **n**o |
+| L | l | **l**ove |
+| R | r | **r**ed |
+
+<Note>
+Lip sync requires the TTS feature to be enabled. See [Configuration](/guides/configuration) for TTS setup.
+</Note>
+
+## Positioning & Customization
+
+The companion can be freely positioned and customized to suit your workflow.
+
+### Dragging & Positioning
+
+<Steps>
+  <Step title="Click and Hold">
+    Click on the companion's canvas area
+  </Step>
+  <Step title="Drag to Position">
+    Move the companion anywhere on your screen
+  </Step>
+  <Step title="Release to Lock">
+    Position is automatically saved per display mode
+  </Step>
+</Steps>
+
+**Position Memory**:
+- Each display mode (Full Body / Portrait) remembers its own position
+- Positions saved per browser profile
+- Persists across browser sessions
+
+<CodeGroup>
+```javascript Position Management
+import { PositionManager } from './babylon/managers/PositionManager';
+
+// Save position for current preset
+await PositionManager.savePosition({
+  preset: 'fullBody',
+  x: window.innerWidth - 400,
+  y: window.innerHeight - 600
+});
+
+// Load saved position
+const position = await PositionManager.loadPosition('fullBody');
+```
+</CodeGroup>
+
+### Customization Options
+
+Customize the companion's appearance and behavior:
+
+<AccordionGroup>
+  <Accordion title="Canvas Size" icon="ruler">
+    Adjust the companion's display size:
+    
+    - **Full Body**: 400x600px (default)
+    - **Portrait**: 300x400px (default)
+    - Custom sizes available in settings
+    
+    ```javascript
+    {
+      canvas: {
+        width: 400,
+        height: 600,
+        autoResize: true
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Character Scale" icon="maximize">
+    Scale the 3D model independently of canvas:
+    
+    - Range: 0.5 to 2.0
+    - Default: 1.0
+    - Affects model size only, not UI elements
+    
+    ```javascript
+    {
+      model: {
+        scale: 1.2,  // 120% of original size
+        position: { x: 0, y: -0.5, z: 0 }
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Animation Speed" icon="gauge">
+    Adjust animation playback speed:
+    
+    - Range: 0.5 to 2.0
+    - Default: 1.0
+    - Affects all animations globally
+    
+    ```javascript
+    {
+      animation: {
+        globalSpeed: 1.0,
+        transitionDuration: 30  // frames
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Lighting & Effects" icon="lightbulb">
+    Configure scene lighting and visual effects:
+    
+    - Ambient light intensity
+    - Directional light position
+    - Shadow quality
+    - Background transparency
+    
+    ```javascript
+    {
+      scene: {
+        ambientLightIntensity: 0.8,
+        directionalLight: {
+          intensity: 1.0,
+          position: { x: 1, y: 1, z: 1 }
+        },
+        backgroundColor: 'transparent'
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Built with Babylon.js
+
+The Virtual Companion leverages **Babylon.js**, a powerful 3D rendering engine, for smooth animations and realistic character rendering.
+
+### Technical Architecture
+
+<Tabs>
+  <Tab title="Rendering Engine">
+    **Babylon.js** provides:
+    
+    - WebGL-based 3D rendering
+    - Hardware-accelerated graphics
+    - Efficient animation system
+    - Advanced physics and lighting
+    
+    ```javascript
+    import * as BABYLON from '@babylonjs/core';
+    
+    // Create Babylon.js scene
+    const engine = new BABYLON.Engine(canvas);
+    const scene = new BABYLON.Scene(engine);
+    
+    // Optimize for performance
+    scene.skipPointerMovePicking = true;
+    scene.autoClear = false;
+    engine.enableOfflineSupport = false;
+    ```
+  </Tab>
+  
+  <Tab title="MMD Model Support">
+    **MikuMikuDance (MMD)** format support:
+    
+    - PMX model loading
+    - VMD animation playback
+    - Morph targets for facial expressions
+    - Bone-based skeletal animation
+    
+    ```javascript
+    import { MmdRuntime } from '@babylonjs/mmd';
+    
+    // Load MMD model
+    const mmdRuntime = new MmdRuntime(scene);
+    const modelMesh = await mmdRuntime.loadModel(
+      'model.pmx',
+      { buildSkeleton: true }
+    );
+    
+    // Play VMD animation
+    await mmdRuntime.playAnimation('motion.vmd');
+    ```
+  </Tab>
+  
+  <Tab title="Animation System">
+    **AnimationManager** handles:
+    
+    - State machine for animation states
+    - Smooth blending between animations
+    - Composite animation mixing
+    - Automatic idle variation switching
+    
+    ```javascript
+    import { AnimationManager } from './babylon/managers/AnimationManager';
+    
+    const animManager = new AnimationManager(mmdRuntime);
+    
+    // Play animation with blending
+    await animManager.playAnimation('thinking_1', {
+      transitionDuration: 30,
+      loop: true,
+      weight: 1.0
+    });
+    
+    // Blend multiple animations
+    await animManager.playComposite([
+      { id: 'idle_1', weight: 0.6 },
+      { id: 'talk_calm', weight: 0.4 }
+    ]);
+    ```
+  </Tab>
+</Tabs>
+
+### Performance Optimization
+
+The companion is optimized for smooth performance:
+
+<CardGroup cols={2}>
+  <Card title="Efficient Rendering" icon="gauge-high">
+    - 60 FPS target frame rate
+    - Culling for off-screen elements
+    - LOD (Level of Detail) system
+    - Adaptive quality settings
+  </Card>
+  
+  <Card title="Smart Loading" icon="download">
+    - Lazy loading of animations
+    - Cached animation files
+    - Progressive model loading
+    - Resource pooling
+  </Card>
+  
+  <Card title="Memory Management" icon="memory">
+    - Automatic garbage collection
+    - Texture compression
+    - Animation buffer reuse
+    - Scene disposal on unmount
+  </Card>
+  
+  <Card title="GPU Acceleration" icon="microchip">
+    - WebGL 2.0 support
+    - Hardware skinning
+    - GPU-based morphing
+    - Shader optimization
+  </Card>
+</CardGroup>
+
+## Interaction & Behaviors
+
+The companion responds intelligently to different contexts:
+
+### Automatic State Changes
+
+| User Action | Companion Response |
+|-------------|--------------------|
+| Send chat message | Transitions to **Thinking** state |
+| Receive AI response | Plays **Speaking** animation with lip sync |
+| Enable voice mode | Listens (idle) then responds (speaking) |
+| Complete task | Plays **Celebration** animation |
+| Idle for 30+ seconds | Occasional yawns and stretches |
+| Hover over companion | Subtle acknowledgment gesture |
+
+### Emotion-Based Animations
+
+The AI can specify emotions in responses, and the companion reacts accordingly:
+
+```javascript
+// AI response includes emotion metadata
+const response = {
+  text: "I'm excited to help you with that!",
+  emotion: "excited"  // Maps to 'talk_excited' animation
+};
+
+// Companion uses corresponding animation
+await companion.speak(response.text, response.emotion);
+```
+
+<Note>
+Emotion mapping can be customized in `animationConfig.js`. See [Configuration](/guides/configuration) for details.
+</Note>
+
+## Accessibility
+
+The companion can be disabled for users who prefer a minimal interface:
+
+<Steps>
+  <Step title="Open Control Panel">
+    Click the VAssist toolbar icon
+  </Step>
+  <Step title="Go to Scene Settings">
+    Navigate to Settings → Scene Configuration
+  </Step>
+  <Step title="Toggle Companion">
+    Disable "Show Virtual Companion"
+  </Step>
+</Steps>
+
+With the companion disabled:
+- All AI features remain fully functional
+- Chat interface works normally
+- Voice mode still available
+- Lower resource usage
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Chrome AI APIs" href="/features/chrome-ai" icon="chrome">
+    Learn about the AI powering the companion's intelligence
+  </Card>
+  <Card title="Configuration" href="/guides/configuration" icon="gear">
+    Customize the companion's appearance and behavior
+  </Card>
+</CardGroup>

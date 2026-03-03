@@ -1,0 +1,376 @@
+---
+title: AI Provider Configuration
+description: Configure Chrome AI, OpenAI, or Ollama for VAssist's language model
+---
+
+VAssist supports three AI providers for natural language processing. Choose the provider that best fits your needs.
+
+## Provider Overview
+
+<CardGroup cols={3}>
+  <Card title="Chrome AI" icon="chrome">
+    **Free, local, and private**
+    
+    Uses Google's Gemini Nano running entirely on your device. No API keys required.
+  </Card>
+  
+  <Card title="OpenAI" icon="openai">
+    **Powerful cloud models**
+    
+    Access GPT-4, GPT-4 Turbo, and other OpenAI models via API.
+  </Card>
+  
+  <Card title="Ollama" icon="server">
+    **Self-hosted flexibility**
+    
+    Run local LLMs (Llama 2, Mistral, etc.) on your own machine.
+  </Card>
+</CardGroup>
+
+## Chrome AI (Default)
+
+### Requirements
+
+<Warning>
+  **Chrome 138+** required with specific feature flags enabled.
+</Warning>
+
+Chrome AI uses Google's on-device Gemini Nano model. Configuration is done via `chrome://flags`:
+
+### Required Flags
+
+<Steps>
+  <Step title="Enable Optimization Guide">
+    Navigate to:
+    ```
+    chrome://flags/#optimization-guide-on-device-model
+    ```
+    
+    Set to: **"Enabled BypassPerfRequirement"**
+    
+    This enables the on-device AI model to run without hardware restrictions.
+  </Step>
+  
+  <Step title="Enable Prompt API">
+    Navigate to:
+    ```
+    chrome://flags/#prompt-api-for-gemini-nano
+    ```
+    
+    Set to: **"Enabled"**
+    
+    Activates the Language Model API for text generation.
+  </Step>
+  
+  <Step title="Enable Multimodal Input">
+    Navigate to:
+    ```
+    chrome://flags/#multimodal-input
+    ```
+    
+    Set to: **"Enabled"**
+    
+    Required for audio/image support in Chrome AI.
+  </Step>
+  
+  <Step title="Restart Chrome">
+    After enabling all flags, **restart Chrome** for changes to take effect.
+  </Step>
+</Steps>
+
+### Configuration
+
+<ParamField path="provider" type="string" default="chrome-ai">
+  Set provider to `chrome-ai` in AI Config settings.
+</ParamField>
+
+<ParamField path="chromeAi.temperature" type="number" default="1.0">
+  Controls response randomness and creativity.
+  
+  - **Range**: 0.0 - 2.0
+  - **Low (0.0-0.7)**: More focused and deterministic
+  - **Medium (0.8-1.2)**: Balanced creativity
+  - **High (1.3-2.0)**: More random and creative
+</ParamField>
+
+<ParamField path="chromeAi.topK" type="number" default="3">
+  Number of top token candidates considered for each generation step.
+  
+  - **Range**: 1 - 128
+  - **Lower**: More focused responses
+  - **Higher**: More diverse vocabulary
+</ParamField>
+
+<ParamField path="chromeAi.outputLanguage" type="string" default="en">
+  Preferred output language for responses.
+  
+  **Supported languages**:
+  - `en` - English
+  - `es` - Spanish
+  - `ja` - Japanese
+</ParamField>
+
+<ParamField path="chromeAi.enableImageSupport" type="boolean" default="true">
+  Enable multimodal image analysis capabilities.
+  
+  Requires the **Multimodal Input** flag enabled.
+</ParamField>
+
+<ParamField path="chromeAi.enableAudioSupport" type="boolean" default="true">
+  Enable multimodal audio transcription.
+  
+  Requires the **Multimodal Input** flag enabled.
+</ParamField>
+
+### System Prompts
+
+Customize the assistant's personality and behavior:
+
+<Accordion title="Available Personalities">
+  <ParamField path="chromeAi.systemPromptType" type="string" default="default">
+    Select a pre-configured personality:
+    
+    - **`default`**: Helpful and concise assistant
+    - **`professional`**: Formal, well-structured responses
+    - **`friendly`**: Warm and conversational
+    - **`technical`**: Expert technical guidance
+    - **`creative`**: Imaginative and expressive
+    - **`concise`**: Brief, to-the-point answers
+    - **`teacher`**: Educational explanations
+    - **`custom`**: Use your own custom prompt
+  </ParamField>
+</Accordion>
+
+<ParamField path="chromeAi.systemPrompt" type="string" default="">
+  Custom system prompt (only used when `systemPromptType` is `custom`).
+  
+  Example:
+  ```
+  You are a helpful coding assistant specializing in JavaScript and React.
+  Provide clear, concise code examples and explanations.
+  ```
+</ParamField>
+
+## OpenAI
+
+### API Key Setup
+
+<Steps>
+  <Step title="Get API Key">
+    1. Sign up at [platform.openai.com](https://platform.openai.com)
+    2. Navigate to **API Keys** section
+    3. Click **"Create new secret key"**
+    4. Copy the key (starts with `sk-`)
+  </Step>
+  
+  <Step title="Configure VAssist">
+    1. Open **AI Config** settings
+    2. Select **OpenAI** as provider
+    3. Paste your API key
+    4. Choose a model
+  </Step>
+</Steps>
+
+### Configuration
+
+<ParamField path="provider" type="string">
+  Set to `openai` to use OpenAI models.
+</ParamField>
+
+<ParamField path="openai.apiKey" type="string" required>
+  Your OpenAI API key.
+  
+  <Warning>
+    Never share or commit your API key. It's stored locally in browser storage.
+  </Warning>
+</ParamField>
+
+<ParamField path="openai.model" type="string" default="gpt-4-turbo-preview">
+  OpenAI model to use for chat completions.
+  
+  **Recommended models**:
+  - `gpt-4-turbo-preview` - Latest GPT-4 Turbo (best quality)
+  - `gpt-4` - Standard GPT-4
+  - `gpt-3.5-turbo` - Faster, more economical
+  - `gpt-3.5-turbo-16k` - Extended context window
+</ParamField>
+
+<ParamField path="openai.temperature" type="number" default="0.7">
+  Response creativity (0.0 - 2.0).
+  
+  - **0.0-0.3**: Focused, deterministic
+  - **0.4-0.7**: Balanced (recommended)
+  - **0.8-1.0**: Creative
+  - **1.1-2.0**: Very creative/random
+</ParamField>
+
+<ParamField path="openai.maxTokens" type="number" default="2000">
+  Maximum tokens in the response.
+  
+  - Higher values allow longer responses
+  - Affects API costs
+  - Typical range: 500-4000
+</ParamField>
+
+<ParamField path="openai.enableImageSupport" type="boolean" default="true">
+  Enable GPT-4 Vision for image analysis.
+  
+  Requires `gpt-4-vision-preview` or similar vision-capable model.
+</ParamField>
+
+<ParamField path="openai.enableAudioSupport" type="boolean" default="true">
+  Enable audio transcription via Whisper API.
+</ParamField>
+
+### System Prompts
+
+<ParamField path="openai.systemPromptType" type="string" default="default">
+  Choose from the same personality options as Chrome AI (default, professional, friendly, etc.).
+</ParamField>
+
+<ParamField path="openai.systemPrompt" type="string" default="">
+  Custom system prompt when `systemPromptType` is `custom`.
+</ParamField>
+
+## Ollama (Local)
+
+### Setup
+
+<Steps>
+  <Step title="Install Ollama">
+    Download and install from [ollama.ai](https://ollama.ai)
+    
+    **Supported platforms**: macOS, Linux, Windows
+  </Step>
+  
+  <Step title="Pull a Model">
+    Open terminal and download a model:
+    
+    ```bash
+    # Llama 2 (7B)
+    ollama pull llama2
+    
+    # Mistral (7B)
+    ollama pull mistral
+    
+    # CodeLlama (7B)
+    ollama pull codellama
+    ```
+  </Step>
+  
+  <Step title="Start Ollama Server">
+    Ollama runs automatically after installation. Verify it's running:
+    
+    ```bash
+    curl http://localhost:11434/api/tags
+    ```
+  </Step>
+  
+  <Step title="Configure VAssist">
+    1. Open **AI Config**
+    2. Select **Ollama** as provider
+    3. Set endpoint to `http://localhost:11434`
+    4. Enter the model name (e.g., `llama2`)
+  </Step>
+</Steps>
+
+### Configuration
+
+<ParamField path="provider" type="string">
+  Set to `ollama` for local Ollama models.
+</ParamField>
+
+<ParamField path="ollama.endpoint" type="string" default="http://localhost:11434">
+  Ollama API endpoint.
+  
+  - **Default**: `http://localhost:11434`
+  - **Custom**: If running on different port/host
+</ParamField>
+
+<ParamField path="ollama.model" type="string" default="llama2" required>
+  Model name to use.
+  
+  **Popular models**:
+  - `llama2` - Meta's Llama 2
+  - `mistral` - Mistral 7B
+  - `codellama` - Code-specialized Llama
+  - `mixtral` - Mixtral 8x7B (larger, more capable)
+  - `phi` - Microsoft Phi-2
+  
+  Run `ollama list` to see installed models.
+</ParamField>
+
+<ParamField path="ollama.temperature" type="number" default="0.7">
+  Response creativity (0.0 - 2.0).
+</ParamField>
+
+<ParamField path="ollama.maxTokens" type="number" default="2000">
+  Maximum tokens in response.
+</ParamField>
+
+<ParamField path="ollama.enableImageSupport" type="boolean" default="true">
+  Enable image analysis (requires vision-capable model like `llava`).
+</ParamField>
+
+<ParamField path="ollama.enableAudioSupport" type="boolean" default="true">
+  Enable audio transcription (experimental).
+</ParamField>
+
+### System Prompts
+
+<ParamField path="ollama.systemPromptType" type="string" default="default">
+  Personality selection (same options as Chrome AI and OpenAI).
+</ParamField>
+
+<ParamField path="ollama.systemPrompt" type="string" default="">
+  Custom system prompt for `custom` personality type.
+</ParamField>
+
+## Provider Comparison
+
+| Feature | Chrome AI | OpenAI | Ollama |
+|---------|-----------|--------|--------|
+| **Cost** | Free | Pay per token | Free (self-hosted) |
+| **Privacy** | Local, private | Cloud, data sent to OpenAI | Local, private |
+| **Setup** | Chrome flags | API key | Install + download models |
+| **Performance** | Fast, on-device | Fast, cloud-powered | Depends on hardware |
+| **Models** | Gemini Nano | GPT-4, GPT-3.5 | Llama 2, Mistral, etc. |
+| **Image Support** | Yes (multimodal) | Yes (GPT-4 Vision) | Yes (with llava) |
+| **Audio Support** | Yes (multimodal) | Yes (Whisper) | Limited |
+| **Internet Required** | No | Yes | No |
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Chrome AI not available">
+    **Check**:
+    1. Chrome version 138 or higher
+    2. All three flags enabled in `chrome://flags`
+    3. Chrome restarted after enabling flags
+    4. Model downloaded (check `chrome://components`)
+    
+    **Model download**: Chrome downloads Gemini Nano automatically. This may take 10-30 minutes.
+  </Accordion>
+  
+  <Accordion title="OpenAI API errors">
+    **Common issues**:
+    - **Invalid API key**: Double-check key in settings
+    - **Rate limit**: Reduce request frequency or upgrade plan
+    - **Model not found**: Verify model name spelling
+    - **Insufficient quota**: Add credits to OpenAI account
+  </Accordion>
+  
+  <Accordion title="Ollama connection failed">
+    **Verify**:
+    1. Ollama is running: `ollama list`
+    2. Endpoint is correct: `http://localhost:11434`
+    3. Model exists: `ollama list` shows your model
+    4. No firewall blocking port 11434
+    
+    **Restart Ollama**:
+    ```bash
+    # macOS/Linux
+    ollama serve
+    ```
+  </Accordion>
+</AccordionGroup>

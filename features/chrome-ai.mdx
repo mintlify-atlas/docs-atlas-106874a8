@@ -1,0 +1,758 @@
+---
+title: Chrome Built-in AI
+description: On-device AI processing with Gemini Nano - private, fast, and works offline
+---
+
+VAssist is powered by **Chrome's Built-in AI**, which brings Google's **Gemini Nano** language model directly into your browser. All AI processing happens on your device - no data leaves your computer, no API keys required, and it works completely offline.
+
+## Overview
+
+Chrome's Built-in AI is a suite of on-device APIs that provide powerful AI capabilities while respecting your privacy.
+
+<CardGroup cols={2}>
+  <Card title="Gemini Nano" icon="microchip">
+    Google's efficient on-device language model
+  </Card>
+  <Card title="On-Device Processing" icon="computer">
+    All AI runs locally - no cloud required
+  </Card>
+  <Card title="Privacy First" icon="shield">
+    Your data never leaves your device
+  </Card>
+  <Card title="No API Keys" icon="key">
+    Works out of the box without accounts
+  </Card>
+</CardGroup>
+
+## What is Gemini Nano?
+
+Gemini Nano is Google's most efficient AI model, specifically designed to run on-device:
+
+<Tabs>
+  <Tab title="Technical Specs">
+    **Model Architecture**:
+    - Optimized transformer architecture
+    - ~1.8 billion parameters
+    - Context window: 1024 tokens
+    - Output languages: English, Spanish, Japanese
+    
+    **Performance**:
+    - Runs on CPU or GPU
+    - Typical response time: 1-3 seconds
+    - Memory usage: ~1.5-2GB when loaded
+    - Model size: ~1.5GB download
+    
+    **Hardware Requirements**:
+    - **GPU**: 4GB+ VRAM (recommended)
+    - **CPU**: 16GB+ RAM with 4+ cores
+    - Supports both x86 and ARM architectures
+  </Tab>
+  
+  <Tab title="Capabilities">
+    **What Gemini Nano Can Do**:
+    
+    ✅ Natural language understanding
+    ✅ Text summarization
+    ✅ Language translation
+    ✅ Content rewriting
+    ✅ Question answering
+    ✅ Text generation
+    ✅ Sentiment analysis
+    ✅ Information extraction
+    ✅ Multi-modal input (images, audio)
+    
+    **Limitations**:
+    
+    ❌ No real-time information (training data cutoff)
+    ❌ 1024 token context limit
+    ❌ Limited output languages (en, es, ja)
+    ❌ Cannot access internet or external resources
+  </Tab>
+  
+  <Tab title="Privacy Benefits">
+    **Why On-Device Matters**:
+    
+    <CardGroup cols={1}>
+      <Card title="Complete Privacy" icon="lock">
+        Your conversations, documents, and data never leave your device. No servers, no logs, no tracking.
+      </Card>
+      
+      <Card title="Offline Capable" icon="wifi">
+        Works without internet after initial model download. Perfect for sensitive work or travel.
+      </Card>
+      
+      <Card title="No Data Collection" icon="database">
+        Chrome doesn't collect or analyze your usage. Your data stays yours.
+      </Card>
+      
+      <Card title="GDPR Compliant" icon="gavel">
+        On-device processing ensures automatic compliance with data protection regulations.
+      </Card>
+    </CardGroup>
+  </Tab>
+</Tabs>
+
+## Available APIs
+
+Chrome provides specialized APIs for different AI tasks, all powered by Gemini Nano:
+
+### 1. Prompt API (LanguageModel)
+
+The core conversational AI interface for general-purpose text generation.
+
+<CodeGroup>
+```javascript Basic Usage
+// Create AI session
+const session = await self.LanguageModel.create({
+  temperature: 1.0,  // Creativity level (0-2)
+  topK: 3            // Response diversity (1-128)
+});
+
+// Send prompt
+const response = await session.prompt(
+  'Explain quantum computing in simple terms'
+);
+
+console.log(response);
+
+// Clean up
+session.destroy();
+```
+
+```javascript Streaming Response
+// Stream response word-by-word
+const session = await self.LanguageModel.create();
+
+const stream = session.promptStreaming(
+  'Write a short story about a robot'
+);
+
+for await (const chunk of stream) {
+  console.log(chunk);  // Display incrementally
+}
+
+session.destroy();
+```
+
+```javascript System Prompts
+// Configure AI personality
+const session = await self.LanguageModel.create({
+  systemPrompt: 'You are a helpful coding assistant. '
+    + 'Provide concise, accurate code examples with '
+    + 'clear explanations.',
+  temperature: 0.7,
+  topK: 5
+});
+
+const code = await session.prompt(
+  'How do I fetch JSON data in JavaScript?'
+);
+```
+
+```javascript Multi-modal Input
+// Process images and audio
+const session = await self.LanguageModel.create();
+
+// Image analysis
+const description = await session.prompt(
+  'Describe what you see in this image',
+  { image: imageElement }
+);
+
+// Audio transcription
+const transcription = await session.prompt(
+  'Transcribe this audio',
+  { audio: audioBlob }
+);
+```
+</CodeGroup>
+
+**Parameters**:
+- `temperature` (0-2): Higher = more creative, lower = more focused
+- `topK` (1-128): Number of top tokens to consider (affects diversity)
+- `outputLanguage`: Output language code (`en`, `es`, `ja`)
+
+### 2. Summarizer API
+
+Specialized API for creating concise summaries of long text.
+
+<CodeGroup>
+```javascript Different Summary Types
+// TL;DR summary
+const tldr = await self.aiSummarizer.create({
+  type: 'tldr',
+  format: 'plain-text',
+  length: 'short'
+});
+
+const summary = await tldr.summarize(longArticle);
+
+// Key points as bullets
+const keyPoints = await self.aiSummarizer.create({
+  type: 'key-points',
+  format: 'markdown',
+  length: 'medium'
+});
+
+const bullets = await keyPoints.summarize(longArticle);
+
+// Teaser/preview
+const teaser = await self.aiSummarizer.create({
+  type: 'teaser',
+  format: 'plain-text',
+  length: 'short'
+});
+
+const preview = await teaser.summarize(longArticle);
+```
+
+```javascript Availability Check
+// Check if Summarizer API is available
+const availability = await self.aiSummarizer.availability();
+
+if (availability === 'readily') {
+  // API is ready to use
+  const summarizer = await self.aiSummarizer.create();
+} else if (availability === 'after-download') {
+  // Need to trigger model download
+  console.log('Model download required');
+}
+```
+</CodeGroup>
+
+**Summary Types**:
+- `tldr`: Concise one-paragraph summary
+- `key-points`: Bullet list of main ideas
+- `teaser`: Short engaging preview
+- `headline`: Single-sentence summary
+
+**Output Formats**:
+- `plain-text`: Clean text without formatting
+- `markdown`: Formatted with markdown syntax
+
+**Length Options**:
+- `short`: ~50-100 words
+- `medium`: ~100-200 words
+- `long`: ~200-300 words
+
+### 3. Translator API
+
+Translate text between 100+ languages, completely offline.
+
+<CodeGroup>
+```javascript Basic Translation
+// Create translator
+const translator = await self.translation.createTranslator({
+  sourceLanguage: 'en',
+  targetLanguage: 'es'
+});
+
+const translated = await translator.translate(
+  'Hello, how are you?'
+);
+
+console.log(translated);  // "Hola, ¿cómo estás?"
+
+translator.destroy();
+```
+
+```javascript Language Detection
+// Auto-detect source language
+const detector = await self.translation.createDetector();
+
+const results = await detector.detect(
+  'Bonjour, comment allez-vous?'
+);
+
+console.log(results[0].detectedLanguage);  // "fr"
+console.log(results[0].confidence);        // 0.95
+
+detector.destroy();
+```
+
+```javascript Check Language Support
+// Check if translation pair is available
+const canTranslate = await self.translation.canTranslate({
+  sourceLanguage: 'en',
+  targetLanguage: 'ja'
+});
+
+if (canTranslate === 'readily') {
+  // Translation available immediately
+} else if (canTranslate === 'after-download') {
+  // Need to download language model
+}
+```
+</CodeGroup>
+
+**Supported Languages** (100+):
+- European: English, Spanish, French, German, Italian, Portuguese, Dutch, Polish, Russian, Greek
+- Asian: Chinese, Japanese, Korean, Hindi, Thai, Vietnamese, Indonesian
+- Middle Eastern: Arabic, Hebrew, Turkish, Farsi
+- And many more...
+
+### 4. Rewriter API
+
+Rewrite and refine text with different tones and styles.
+
+<CodeGroup>
+```javascript Tone Adjustment
+// Formalize casual text
+const formal = await self.aiRewriter.create({
+  tone: 'formal'
+});
+
+const rewritten = await formal.rewrite(
+  'Hey, can u send me that file?'
+);
+// "Could you please send me that file?"
+
+// Casualize formal text
+const casual = await self.aiRewriter.create({
+  tone: 'casual'
+});
+
+const friendly = await casual.rewrite(
+  'I would be grateful if you could provide assistance.'
+);
+// "I'd really appreciate your help!"
+```
+
+```javascript Length Adjustment
+// Shorten text
+const shorter = await self.aiRewriter.create({
+  length: 'shorter'
+});
+
+const concise = await shorter.rewrite(
+  'In light of the aforementioned circumstances and '
+  + 'taking into account all relevant factors...'
+);
+// "Considering everything..."
+
+// Expand text
+const longer = await self.aiRewriter.create({
+  length: 'longer'
+});
+
+const detailed = await longer.rewrite(
+  'The meeting is tomorrow.'
+);
+// "The scheduled meeting is taking place tomorrow morning."
+```
+
+```javascript Grammar Fix
+// Fix spelling and grammar
+const fixer = await self.aiRewriter.create({
+  tone: 'as-is',
+  format: 'as-is',
+  length: 'as-is'
+});
+
+const fixed = await fixer.rewrite(
+  'Im going too the stor to by some bred'
+);
+// "I'm going to the store to buy some bread"
+```
+
+```javascript Custom Context
+// Provide context for better rewriting
+const rewriter = await self.aiRewriter.create({
+  tone: 'professional'
+});
+
+const result = await rewriter.rewrite(
+  'We need to talk about the numbers',
+  {
+    context: 'Business email to financial team about Q4 results'
+  }
+);
+// "I would like to discuss the Q4 financial metrics with the team."
+```
+</CodeGroup>
+
+**Tone Options**:
+- `as-is`: Keep original tone
+- `formal`: Professional, polished
+- `casual`: Friendly, conversational
+
+**Format Options**:
+- `as-is`: Keep original format
+- `plain-text`: Remove formatting
+- `markdown`: Add markdown formatting
+
+**Length Options**:
+- `as-is`: Keep original length
+- `shorter`: More concise
+- `longer`: More detailed
+
+### 5. Writer API
+
+Generate new content from scratch based on prompts.
+
+<CodeGroup>
+```javascript Content Generation
+// Create writer
+const writer = await self.aiWriter.create({
+  tone: 'neutral',
+  format: 'plain-text',
+  length: 'medium'
+});
+
+// Generate content
+const content = await writer.write(
+  'Write a product description for noise-canceling headphones'
+);
+
+writer.destroy();
+```
+
+```javascript With Context
+// Use selected text as context
+const writer = await self.aiWriter.create({
+  tone: 'enthusiastic',
+  length: 'short'
+});
+
+const blogIntro = await writer.write(
+  'Write an engaging introduction for this blog post',
+  { context: selectedText }
+);
+```
+
+```javascript Different Formats
+// Generate markdown
+const mdWriter = await self.aiWriter.create({
+  format: 'markdown',
+  tone: 'professional'
+});
+
+const documentation = await mdWriter.write(
+  'Create API documentation for a REST endpoint that '
+  + 'returns user profile data'
+);
+```
+</CodeGroup>
+
+### 6. Language Detector API
+
+Identify the language of any text with confidence scores.
+
+<CodeGroup>
+```javascript Basic Detection
+const detector = await self.translation.createDetector();
+
+const results = await detector.detect(
+  'Это пример русского текста'
+);
+
+results.forEach(result => {
+  console.log(`Language: ${result.detectedLanguage}`);
+  console.log(`Confidence: ${result.confidence}`);
+});
+
+detector.destroy();
+```
+
+```javascript Multiple Candidates
+// Get top language candidates
+const detector = await self.translation.createDetector();
+
+const candidates = await detector.detect(
+  'Mixed text with english y español',
+  { maxCandidates: 3 }
+);
+
+// Returns array sorted by confidence:
+// [{ detectedLanguage: 'en', confidence: 0.7 },
+//  { detectedLanguage: 'es', confidence: 0.3 }]
+```
+</CodeGroup>
+
+## Configuration
+
+Customize Chrome AI behavior in VAssist settings:
+
+<CodeGroup>
+```javascript AI Configuration
+// Configure in Control Panel or via code
+const aiConfig = {
+  provider: 'chrome-ai',
+  
+  chromeAi: {
+    temperature: 1.0,          // Creativity (0-2)
+    topK: 3,                   // Diversity (1-128)
+    outputLanguage: 'en',      // en, es, ja
+    enableImageSupport: true,  // Multi-modal images
+    enableAudioSupport: true,  // Multi-modal audio
+    systemPrompt: 'You are a helpful assistant...'
+  }
+};
+```
+
+```javascript Feature Toggles
+// Enable/disable specific features
+const aiFeatures = {
+  translator: {
+    enabled: true,
+    defaultTargetLanguage: 'es'
+  },
+  
+  summarizer: {
+    enabled: true,
+    defaultType: 'tldr',
+    defaultFormat: 'plain-text',
+    defaultLength: 'medium'
+  },
+  
+  rewriter: {
+    enabled: true,
+    defaultTone: 'as-is',
+    defaultFormat: 'as-is',
+    defaultLength: 'as-is'
+  },
+  
+  writer: {
+    enabled: true,
+    defaultTone: 'neutral',
+    defaultFormat: 'plain-text',
+    defaultLength: 'medium'
+  },
+  
+  languageDetector: {
+    enabled: true
+  }
+};
+```
+</CodeGroup>
+
+## Setup Requirements
+
+To use Chrome's Built-in AI, you need:
+
+<Steps>
+  <Step title="Chrome Version">
+    **Chrome 138 or newer**
+    
+    Check your version at `chrome://version`
+    
+    Update at `chrome://settings/help` if needed
+  </Step>
+  
+  <Step title="Enable Flags">
+    **Required Chrome Flags**
+    
+    Visit these URLs and enable each flag:
+    
+    - `chrome://flags/#optimization-guide-on-device-model`
+      → **Enabled BypassPerfRequirement**
+    
+    - `chrome://flags/#prompt-api-for-gemini-nano`
+      → **Enabled**
+    
+    - `chrome://flags/#prompt-api-for-gemini-nano-multimodal-input`
+      → **Enabled** (for voice/image features)
+    
+    - `chrome://flags/#writer-api-for-gemini-nano`
+      → **Enabled**
+    
+    - `chrome://flags/#rewriter-api-for-gemini-nano`
+      → **Enabled**
+    
+    - `chrome://flags/#summarization-api-for-gemini-nano`
+      → **Enabled**
+    
+    - `chrome://flags/#translation-api`
+      → **Enabled**
+    
+    - `chrome://flags/#language-detection-api`
+      → **Enabled**
+    
+    Click **Relaunch** after enabling all flags
+  </Step>
+  
+  <Step title="Download Model">
+    **Download Gemini Nano (~1.5GB)**
+    
+    1. Visit `chrome://components`
+    2. Find "Optimization Guide On Device Model"
+    3. Click "Check for update"
+    4. Wait for download to complete
+    5. Monitor at `chrome://on-device-internals/`
+  </Step>
+  
+  <Step title="Verify Installation">
+    **Test in VAssist**
+    
+    1. Open VAssist Control Panel
+    2. Go to Settings → AI Configuration
+    3. Click "Test Connection"
+    4. Should show "Chrome AI ready"
+  </Step>
+</Steps>
+
+<Note>
+See the [Installation Guide](/installation) for detailed setup instructions with screenshots.
+</Note>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Model Not Downloading" icon="download">
+    **Symptoms**:
+    - "Check for update" does nothing
+    - Component not appearing in chrome://components
+    
+    **Solutions**:
+    1. Verify all Chrome flags are enabled
+    2. Restart Chrome completely (not just relaunch)
+    3. Toggle flags off and on, then restart again
+    4. Check free disk space (~2GB needed)
+    5. Try unmetered network connection
+  </Accordion>
+  
+  <Accordion title="API Not Available" icon="triangle-exclamation">
+    **Symptoms**:
+    - `LanguageModel is not defined`
+    - VAssist shows "Chrome AI not available"
+    
+    **Solutions**:
+    1. Confirm Chrome version 138+
+    2. Verify all required flags enabled
+    3. Restart browser after enabling flags
+    4. Check chrome://on-device-internals/ for errors
+    5. Try creating session manually in DevTools console
+  </Accordion>
+  
+  <Accordion title="Context Window Full" icon="memory">
+    **Symptoms**:
+    - Error: "QuotaExceededError"
+    - Long conversations stop working
+    
+    **Solutions**:
+    1. Start a new conversation
+    2. Enable "Temporary Chat" mode
+    3. Reduce page context length
+    4. Gemini Nano has 1024 token limit - this is normal
+  </Accordion>
+  
+  <Accordion title="Performance Issues" icon="gauge">
+    **Symptoms**:
+    - Slow response times
+    - Browser freezing
+    
+    **Solutions**:
+    1. Close other tabs/applications
+    2. Check hardware meets minimum requirements:
+       - 4GB+ VRAM (GPU) OR 16GB+ RAM (CPU)
+    3. Disable other Chrome extensions temporarily
+    4. Monitor Task Manager for memory usage
+  </Accordion>
+</AccordionGroup>
+
+## Privacy Benefits
+
+Running AI on-device provides significant privacy advantages:
+
+<CardGroup cols={2}>
+  <Card title="No Server Communication" icon="server">
+    Zero network requests for AI processing. Your data stays on your device.
+  </Card>
+  
+  <Card title="No Usage Tracking" icon="chart-line">
+    Chrome doesn't log or analyze your prompts and responses.
+  </Card>
+  
+  <Card title="Offline Capable" icon="plane">
+    Works without internet after model download. Perfect for sensitive work.
+  </Card>
+  
+  <Card title="Regulatory Compliance" icon="gavel">
+    Automatic GDPR, HIPAA, and data protection compliance through on-device processing.
+  </Card>
+</CardGroup>
+
+<Info>
+Unlike cloud-based AI services, Chrome's Built-in AI ensures your conversations, documents, and personal information never leave your computer.
+</Info>
+
+## Performance Characteristics
+
+<Tabs>
+  <Tab title="Speed">
+    **Typical Response Times** (varies by hardware):
+    
+    | Task | GPU | CPU |
+    |------|-----|-----|
+    | Short prompt (10 words) | 0.5-1s | 1-2s |
+    | Medium prompt (50 words) | 1-2s | 2-4s |
+    | Long prompt (200 words) | 2-4s | 4-8s |
+    | Streaming (first token) | 0.3-0.5s | 0.5-1s |
+    
+    **Factors Affecting Speed**:
+    - Hardware specs (GPU vs CPU)
+    - Prompt complexity
+    - Context length
+    - Concurrent browser activity
+  </Tab>
+  
+  <Tab title="Resource Usage">
+    **Memory Consumption**:
+    - Model loaded: ~1.5-2GB RAM
+    - Per session: ~50-100MB additional
+    - Total overhead: ~2-3GB typical
+    
+    **CPU/GPU Usage**:
+    - Idle: Minimal (~1%)
+    - Active inference: 20-60% (1-2 cores)
+    - GPU: More efficient, faster responses
+    
+    **Disk Space**:
+    - Model download: ~1.5GB
+    - Cache: ~100-200MB
+    - Total: ~2GB
+  </Tab>
+  
+  <Tab title="Scalability">
+    **Concurrent Sessions**:
+    - Recommended: 1-2 active sessions
+    - Maximum: 5-6 before slowdown
+    - Each session shares model memory
+    
+    **Best Practices**:
+    1. Destroy sessions when done (`session.destroy()`)
+    2. Reuse sessions for multiple prompts
+    3. Avoid keeping idle sessions open
+    4. Monitor memory in chrome://task-manager
+  </Tab>
+</Tabs>
+
+## Comparison with Cloud AI
+
+| Feature | Chrome Built-in AI | Cloud AI (GPT, Claude) |
+|---------|-------------------|------------------------|
+| **Privacy** | ✅ 100% local | ❌ Data sent to servers |
+| **Speed** | ✅ Fast (local) | ⚠️ Network dependent |
+| **Offline** | ✅ Works offline | ❌ Requires internet |
+| **Cost** | ✅ Free | ❌ API costs |
+| **Setup** | ⚠️ Initial setup | ✅ Just API key |
+| **Capabilities** | ⚠️ Good for most tasks | ✅ More advanced |
+| **Context Window** | ⚠️ 1024 tokens | ✅ 8k-200k tokens |
+| **Updates** | ⚠️ Via Chrome updates | ✅ Continuous |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Installation" href="/installation" icon="download">
+    Set up Chrome AI flags and download Gemini Nano
+  </Card>
+  <Card title="Configuration" href="/guides/configuration" icon="gear">
+    Customize AI settings and behavior
+  </Card>
+  <Card title="AI Toolbar" href="/features/ai-toolbar" icon="wand-magic-sparkles">
+    Explore AI-powered text and image tools
+  </Card>
+  <Card title="Chat Interface" href="/features/chat-interface" icon="comments">
+    Learn about conversational AI features
+  </Card>
+</CardGroup>

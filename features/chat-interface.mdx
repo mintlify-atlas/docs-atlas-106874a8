@@ -1,0 +1,482 @@
+---
+title: Chat Interface
+description: Natural conversation with AI, featuring page context, file attachments, and voice mode
+---
+
+The Chat Interface provides a natural way to have conversations with Gemini Nano running directly in your browser. It features context-aware responses, file attachments, voice conversations, and advanced history management.
+
+<Frame>
+  <img src="/assets/chat.png" alt="Chat Interface" />
+</Frame>
+
+## Core Features
+
+<CardGroup cols={2}>
+  <Card title="Page Context" icon="file-lines">
+    Ask questions about the webpage you're viewing
+  </Card>
+  <Card title="File Attachments" icon="paperclip">
+    Attach images and audio files for context
+  </Card>
+  <Card title="Voice Mode" icon="microphone">
+    Hands-free conversation with TTS and STT
+  </Card>
+  <Card title="Chat History" icon="clock-rotate-left">
+    Auto-saved conversations with search and branching
+  </Card>
+</CardGroup>
+
+## Page Context
+
+Chat with AI about the current webpage you're viewing. VAssist automatically extracts and analyzes page content to provide relevant answers.
+
+### What You Can Ask
+
+<AccordionGroup>
+  <Accordion title="Summarize Content" icon="file-lines">
+    "Summarize this article"
+    
+    "What are the main points on this page?"
+    
+    "Give me a TL;DR of this documentation"
+  </Accordion>
+  
+  <Accordion title="Extract Information" icon="magnifying-glass">
+    "What's the author's contact information?"
+    
+    "List all the products mentioned"
+    
+    "Find pricing details on this page"
+  </Accordion>
+  
+  <Accordion title="Explain Concepts" icon="lightbulb">
+    "Explain this technical term in simple words"
+    
+    "How does this feature work?"
+    
+    "What's the difference between these two options?"
+  </Accordion>
+  
+  <Accordion title="Navigate Content" icon="compass">
+    "Where can I find installation instructions?"
+    
+    "Is there a pricing table on this page?"
+    
+    "Does this site mention refund policies?"
+  </Accordion>
+</AccordionGroup>
+
+### How It Works
+
+<Steps>
+  <Step title="Page Analysis">
+    VAssist extracts text content, headings, links, and structure from the current page
+  </Step>
+  <Step title="Context Injection">
+    Page content is automatically included in your conversation context
+  </Step>
+  <Step title="Intelligent Responses">
+    Gemini Nano uses page context to provide accurate, specific answers
+  </Step>
+</Steps>
+
+<CodeGroup>
+```javascript Page Context
+// VAssist automatically extracts page content
+const pageContext = await DocumentInteractionService.getPageContext();
+
+// Context is added to the conversation
+const messages = [
+  {
+    role: 'system',
+    content: `Page URL: ${pageContext.url}\nPage Content: ${pageContext.text}`
+  },
+  {
+    role: 'user',
+    content: 'Summarize this article'
+  }
+];
+```
+</CodeGroup>
+
+## File Attachments
+
+Attach images and audio files to provide additional context for your conversations.
+
+### Supported File Types
+
+<Tabs>
+  <Tab title="Images">
+    **Formats**: JPG, PNG, GIF, WebP, BMP
+    
+    **Use Cases**:
+    - Describe image content
+    - Extract text from screenshots (OCR)
+    - Identify objects and scenes
+    - Compare multiple images
+    - Get design feedback
+    
+    <CodeGroup>
+    ```javascript Image Attachment
+    const session = await self.LanguageModel.create({
+      temperature: 1.0,
+      topK: 3
+    });
+    
+    const response = await session.prompt(
+      'What objects do you see in this image?',
+      { image: imageFile }
+    );
+    ```
+    </CodeGroup>
+  </Tab>
+  
+  <Tab title="Audio">
+    **Formats**: MP3, WAV, WebM, OGG, M4A
+    
+    **Use Cases**:
+    - Transcribe voice recordings
+    - Analyze audio content
+    - Convert speech to text
+    - Summarize audio discussions
+    
+    <CodeGroup>
+    ```javascript Audio Attachment
+    const session = await self.LanguageModel.create({
+      temperature: 0.1,
+      topK: 3,
+      outputLanguage: 'en'
+    });
+    
+    const transcription = await session.prompt(
+      'Transcribe this audio recording',
+      { audio: audioFile }
+    );
+    ```
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+### How to Attach Files
+
+<Steps>
+  <Step title="Drag and Drop">
+    Drag files directly into the chat window
+  </Step>
+  <Step title="Click to Upload">
+    Click the attachment icon to browse and select files
+  </Step>
+  <Step title="Send with Message">
+    Type your question and send - VAssist processes files with your message
+  </Step>
+</Steps>
+
+<Note>
+File attachments are processed entirely on-device using Chrome's Multimodal Input API. Your files never leave your computer.
+</Note>
+
+## Voice Mode
+
+Have hands-free conversations with VAssist using voice input and text-to-speech output.
+
+### Features
+
+<CardGroup cols={2}>
+  <Card title="Speech-to-Text" icon="microphone">
+    **Chrome AI Multimodal Input**
+    
+    Speak naturally and see your words transcribed in real-time
+  </Card>
+  <Card title="Text-to-Speech" icon="volume">
+    **Kokoro.js TTS**
+    
+    Hear responses with natural-sounding on-device voices
+  </Card>
+  <Card title="Continuous Mode" icon="arrows-rotate">
+    Automatic listening after each response for seamless conversation flow
+  </Card>
+  <Card title="Privacy First" icon="shield">
+    All voice processing happens locally - no cloud services
+  </Card>
+</CardGroup>
+
+### Voice Configuration
+
+<Tabs>
+  <Tab title="Speech-to-Text">
+    Configure STT in the Control Panel:
+    
+    ```javascript STT Configuration
+    {
+      enabled: true,
+      provider: 'chrome-ai-multimodal',
+      'chrome-ai-multimodal': {
+        temperature: 0.1,
+        topK: 3,
+        outputLanguage: 'en' // en, es, ja
+      },
+      recordingFormat: 'webm',
+      maxRecordingDuration: 60
+    }
+    ```
+    
+    **Supported languages**: English, Spanish, Japanese
+  </Tab>
+  
+  <Tab title="Text-to-Speech">
+    Configure TTS in the Control Panel:
+    
+    ```javascript TTS Configuration
+    {
+      enabled: true,
+      provider: 'kokoro',
+      kokoro: {
+        voice: 'af_heart',
+        speed: 1.0,
+        device: 'auto', // auto, webgpu, wasm
+        keepModelLoaded: true
+      }
+    }
+    ```
+    
+    **Available voices**:
+    - Female: af_heart, af_bella, af_sarah, af_sky
+    - Male: am_adam, am_michael, am_liam
+    - British Female: bf_alice, bf_emma, bf_lily
+    - British Male: bm_george, bm_lewis
+  </Tab>
+</Tabs>
+
+### How to Use Voice Mode
+
+<Steps>
+  <Step title="Enable Voice Mode">
+    Click the microphone icon in the chat input area
+  </Step>
+  <Step title="Start Speaking">
+    Begin speaking - your words appear as text in real-time
+  </Step>
+  <Step title="Send Message">
+    Click send or say "send" to submit your message
+  </Step>
+  <Step title="Hear Response">
+    VAssist responds with natural speech synthesis
+  </Step>
+</Steps>
+
+<Info>
+Voice mode works completely offline using Chrome's built-in AI and Kokoro.js for text-to-speech.
+</Info>
+
+## Chat History with Branching
+
+VAssist automatically saves all conversations with powerful branching support.
+
+### History Features
+
+<CardGroup cols={2}>
+  <Card title="Auto-Save" icon="floppy-disk">
+    Conversations saved automatically to IndexedDB
+  </Card>
+  <Card title="Search" icon="magnifying-glass">
+    Full-text search across all conversations
+  </Card>
+  <Card title="Branching" icon="code-branch">
+    Create multiple conversation branches from any message
+  </Card>
+  <Card title="Export" icon="download">
+    Export conversations to JSON or Markdown
+  </Card>
+</CardGroup>
+
+### Conversation Branching
+
+Create alternative conversation paths without losing context:
+
+<Steps>
+  <Step title="Edit Message">
+    Click the edit icon on any previous message
+  </Step>
+  <Step title="Modify Content">
+    Change the message text to explore a different direction
+  </Step>
+  <Step title="Create Branch">
+    Send the edited message - creates a new conversation branch
+  </Step>
+  <Step title="Switch Branches">
+    Use branch navigation to switch between conversation paths
+  </Step>
+</Steps>
+
+<CodeGroup>
+```javascript Chat History
+import { ChatHistoryService } from './services/ChatHistoryService';
+
+// Save conversation
+await ChatHistoryService.saveChat({
+  title: 'Page Analysis',
+  messages: conversationMessages,
+  metadata: {
+    url: window.location.href,
+    timestamp: Date.now()
+  }
+});
+
+// Load conversation with branches
+const chat = await ChatHistoryService.loadChat(chatId);
+const branches = chat.branches || [];
+
+// Create new branch
+const branchId = await ChatHistoryService.createBranch({
+  chatId,
+  fromMessageId,
+  newMessage: editedMessage
+});
+```
+</CodeGroup>
+
+## Message Actions
+
+Enhance your chat experience with these message actions:
+
+<CardGroup cols={3}>
+  <Card title="Edit" icon="pen">
+    Modify any message to explore different responses
+  </Card>
+  <Card title="Regenerate" icon="arrows-rotate">
+    Get a new response without changing your message
+  </Card>
+  <Card title="Copy" icon="copy">
+    Copy message text to clipboard
+  </Card>
+  <Card title="TTS Playback" icon="play">
+    Listen to any message with text-to-speech
+  </Card>
+  <Card title="Delete" icon="trash">
+    Remove messages from conversation
+  </Card>
+  <Card title="Branch" icon="code-branch">
+    Create new conversation branch from this point
+  </Card>
+</CardGroup>
+
+### Regenerate Responses
+
+Not satisfied with the AI's response? Regenerate it:
+
+1. Hover over the assistant's message
+2. Click the regenerate icon (circular arrows)
+3. Get a new response with the same context
+
+<Note>
+Each regeneration creates a branch, allowing you to compare different responses.
+</Note>
+
+## Temporary Chats
+
+Start conversations that don't save to history - perfect for sensitive topics or quick questions.
+
+### When to Use Temporary Chats
+
+- Testing features
+- Sensitive or private information
+- Quick one-off questions
+- Experimenting with prompts
+
+### Enable Temporary Mode
+
+<Steps>
+  <Step title="Open Settings">
+    Click the settings icon in the chat interface
+  </Step>
+  <Step title="Toggle Temporary">
+    Enable "Temporary Chat" mode
+  </Step>
+  <Step title="Start Chatting">
+    All messages in this session won't be saved
+  </Step>
+</Steps>
+
+<Warning>
+Temporary chats are permanently deleted when you close the chat window. There is no way to recover them.
+</Warning>
+
+## Smooth Animations
+
+Words fade in smoothly one at a time as the AI responds, creating a natural typing effect:
+
+- **Streaming responses** - Text appears word-by-word in real-time
+- **Smooth transitions** - Fade-in effects for each word
+- **Stop generation** - Click stop button to halt response generation
+- **Resume context** - Partial responses maintain conversation context
+
+<CodeGroup>
+```javascript Streaming Response
+// Stream AI response token by token
+const session = await self.LanguageModel.create();
+const stream = session.promptStreaming(userMessage);
+
+for await (const chunk of stream) {
+  // Display each word with fade-in animation
+  appendWordToChat(chunk, { animate: true });
+}
+```
+</CodeGroup>
+
+## Performance Tips
+
+<AccordionGroup>
+  <Accordion title="Token Limits" icon="gauge">
+    Gemini Nano has a 1024 token context window. VAssist automatically manages context:
+    
+    - Recent messages prioritized
+    - Older messages summarized
+    - Page context truncated if needed
+    
+    Start a new conversation if you hit the limit.
+  </Accordion>
+  
+  <Accordion title="Large Attachments" icon="file-arrow-up">
+    Processing large files may take time:
+    
+    - Images: Automatically resized for optimal processing
+    - Audio: Maximum 60 seconds per recording
+    - Multiple files: Processed sequentially
+  </Accordion>
+  
+  <Accordion title="Voice Mode Latency" icon="microphone">
+    Reduce voice mode latency:
+    
+    - Keep TTS model loaded (`keepModelLoaded: true`)
+    - Use WebGPU device for faster synthesis
+    - Choose Q4 quantization for speed
+  </Accordion>
+</AccordionGroup>
+
+## Privacy & Security
+
+<CardGroup cols={2}>
+  <Card title="Local Storage" icon="database">
+    All chats stored locally in your browser's IndexedDB
+  </Card>
+  <Card title="No Cloud Sync" icon="cloud-slash">
+    Conversations never leave your device
+  </Card>
+  <Card title="On-Device AI" icon="microchip">
+    All processing happens with Chrome's built-in AI
+  </Card>
+  <Card title="Clear Anytime" icon="trash">
+    Delete conversations or clear all history instantly
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Virtual Companion" href="/features/virtual-companion" icon="user-robot">
+    Learn about the animated 3D assistant
+  </Card>
+  <Card title="Chrome AI APIs" href="/features/chrome-ai" icon="chrome">
+    Understand the underlying AI technology
+  </Card>
+</CardGroup>

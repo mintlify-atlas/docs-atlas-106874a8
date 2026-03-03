@@ -1,0 +1,630 @@
+---
+title: 'Services Reference'
+description: 'Service layer API for AI, TTS, STT, and content processing'
+---
+
+# Services
+
+Service classes for AI chat, text-to-speech, speech-to-text, translation, summarization, rewriting, and content generation.
+
+---
+
+## AIService
+
+Multi-provider AI service with unified interface for Chrome AI, OpenAI, and Ollama.
+
+### Methods
+
+<ResponseField name="configure" type="function">
+  ```typescript
+  configure(config: AIConfig, tabId?: number): Promise<boolean>
+  ```
+  Configure AI client with provider settings.
+  
+  **Parameters:**
+  - `config`: Configuration object
+  - `config.provider`: 'chrome-ai' | 'openai' | 'ollama'
+  - `config.chromeAi`: Chrome AI settings (temperature, topK, enableImageSupport, enableAudioSupport)
+  - `config.openai`: OpenAI settings (apiKey, model, temperature, maxTokens)
+  - `config.ollama`: Ollama settings (endpoint, model, temperature, maxTokens)
+  - `tabId`: Tab ID (extension mode only)
+  
+  **Returns:** Success status
+</ResponseField>
+
+<ResponseField name="isConfigured" type="function">
+  ```typescript
+  isConfigured(tabId?: number): boolean
+  ```
+  Check if service is configured and ready.
+</ResponseField>
+
+<ResponseField name="chat" type="function">
+  ```typescript
+  chat(
+    messages: Message[],
+    options?: ChatOptions,
+    tabId?: number
+  ): AsyncGenerator<string>
+  ```
+  Stream chat completion responses.
+  
+  **Parameters:**
+  - `messages`: Array of message objects with `role` and `content`
+  - `options`: `{ systemPrompt?, temperature?, maxTokens?, images?, audios? }`
+  - `tabId`: Tab ID (extension mode only)
+  
+  **Yields:** Text chunks as they arrive
+  
+  **Example:**
+  ```javascript
+  for await (const chunk of aiService.chat(messages)) {
+    console.log(chunk);
+  }
+  ```
+</ResponseField>
+
+<ResponseField name="abortRequest" type="function">
+  ```typescript
+  abortRequest(tabId?: number): void
+  ```
+  Abort ongoing chat request.
+</ResponseField>
+
+### Supported Providers
+
+<Accordion title="Chrome AI (Gemini Nano)">
+  - **On-device inference** (no API key required)
+  - **Multi-modal**: Images and audio support
+  - **Requirements**: Chrome 138+ with flags enabled
+  - **Model**: Gemini Nano (2B-4B parameters)
+</Accordion>
+
+<Accordion title="OpenAI">
+  - **Cloud-based** (API key required)
+  - **Models**: GPT-4, GPT-4 Turbo, GPT-4o, GPT-3.5 Turbo
+  - **Multi-modal**: Images support (GPT-4 Vision)
+  - **Audio**: Via Whisper transcription
+</Accordion>
+
+<Accordion title="Ollama">
+  - **Self-hosted** (local server)
+  - **Models**: Llama 2, Mistral, Mixtral, etc.
+  - **Multi-modal**: Depends on model (LLaVA for images)
+  - **Endpoint**: Default `http://localhost:11434`
+</Accordion>
+
+---
+
+## TTSService
+
+Multi-provider Text-to-Speech service with streaming generation and audio queue management.
+
+### Methods
+
+<ResponseField name="configure" type="function">
+  ```typescript
+  configure(config: TTSConfig, tabId?: number): boolean
+  ```
+  Configure TTS client with provider settings.
+  
+  **Parameters:**
+  - `config.provider`: 'kokoro' | 'openai' | 'openai-compatible'
+  - `config.kokoro`: Kokoro settings (modelId, voice, speed, device)
+  - `config.openai`: OpenAI TTS settings (apiKey, model, voice, speed)
+  - `config['openai-compatible']`: Generic TTS API settings
+  - `tabId`: Tab ID (extension mode only)
+</ResponseField>
+
+<ResponseField name="isConfigured" type="function">
+  ```typescript
+  isConfigured(tabId?: number): boolean
+  ```
+  Check if service is configured and ready.
+</ResponseField>
+
+<ResponseField name="generateChunkedSpeech" type="function">
+  ```typescript
+  generateChunkedSpeech(
+    text: string,
+    voice?: string,
+    chunkSize?: number,
+    minChunkSize?: number,
+    sessionId?: string,
+    tabId?: number
+  ): Promise<string[]>
+  ```
+  Generate TTS audio with intelligent text chunking.
+  
+  **Parameters:**
+  - `text`: Text to synthesize
+  - `voice`: Voice ID (overrides config)
+  - `chunkSize`: Target chunk size in characters (default: 500)
+  - `minChunkSize`: Minimum chunk size (default: 100)
+  - `sessionId`: Session identifier for tracking
+  - `tabId`: Tab ID (extension mode only)
+  
+  **Returns:** Array of audio blob URLs
+</ResponseField>
+
+<ResponseField name="playAudioSequence" type="function">
+  ```typescript
+  playAudioSequence(
+    audioBlobUrls: string[],
+    sessionId?: string
+  ): Promise<void>
+  ```
+  Play sequence of audio chunks with queue management.
+  
+  **Parameters:**
+  - `audioBlobUrls`: Array of blob URLs to play
+  - `sessionId`: Session identifier
+</ResponseField>
+
+<ResponseField name="stopPlayback" type="function">
+  ```typescript
+  stopPlayback(): void
+  ```
+  Stop current TTS playback and clear queue.
+</ResponseField>
+
+<ResponseField name="initializeBVMDConverter" type="function">
+  ```typescript
+  initializeBVMDConverter(scene: Scene): void
+  ```
+  Initialize lip-sync animation converter with Babylon.js scene.
+</ResponseField>
+
+<ResponseField name="setSpeakCallback" type="function">
+  ```typescript
+  setSpeakCallback(callback: (text: string, bvmdUrl: string) => void): void
+  ```
+  Set callback for triggering speak animations with lip sync.
+</ResponseField>
+
+### Supported Providers
+
+<Accordion title="Kokoro TTS (Local)">
+  - **On-device synthesis** using ONNX runtime
+  - **Voices**: 30+ high-quality neural voices
+  - **Backends**: WebGPU (fast) or WASM (compatible)
+  - **Languages**: English, Japanese, Chinese, Korean, French, Spanish
+  - **Lip Sync**: Automatic BVMD generation for 3D character
+</Accordion>
+
+<Accordion title="OpenAI TTS">
+  - **Cloud-based** (API key required)
+  - **Models**: tts-1 (fast), tts-1-hd (high quality)
+  - **Voices**: alloy, echo, fable, onyx, nova, shimmer
+  - **Speed**: Adjustable 0.25x to 4.0x
+</Accordion>
+
+<Accordion title="OpenAI-Compatible TTS">
+  - **Generic TTS API** (Cartesia, ElevenLabs, etc.)
+  - **Custom endpoint** and voice configuration
+  - **OpenAI SDK compatibility**
+</Accordion>
+
+---
+
+## STTService
+
+Multi-provider Speech-to-Text service supporting one-shot transcription and continuous streaming.
+
+### Methods
+
+<ResponseField name="configure" type="function">
+  ```typescript
+  configure(config: STTConfig, tabId?: number): boolean
+  ```
+  Configure STT client with provider settings.
+  
+  **Parameters:**
+  - `config.provider`: 'chrome-ai-multimodal' | 'openai' | 'openai-compatible'
+  - `config['chrome-ai-multimodal']`: Chrome AI settings
+  - `config.openai`: OpenAI Whisper settings
+  - `config['openai-compatible']`: Generic STT API settings
+</ResponseField>
+
+<ResponseField name="isConfigured" type="function">
+  ```typescript
+  isConfigured(tabId?: number): boolean
+  ```
+  Check if service is configured.
+</ResponseField>
+
+<ResponseField name="startRecording" type="function">
+  ```typescript
+  startRecording(): Promise<boolean>
+  ```
+  Start recording audio from microphone.
+  
+  **Returns:** Success status
+</ResponseField>
+
+<ResponseField name="stopRecording" type="function">
+  ```typescript
+  stopRecording(): Promise<void>
+  ```
+  Stop recording and transcribe audio.
+</ResponseField>
+
+<ResponseField name="setTranscriptionCallback" type="function">
+  ```typescript
+  setTranscriptionCallback(callback: (text: string) => void): void
+  ```
+  Set callback for transcription results.
+</ResponseField>
+
+<ResponseField name="setErrorCallback" type="function">
+  ```typescript
+  setErrorCallback(callback: (error: Error) => void): void
+  ```
+  Set callback for error handling.
+</ResponseField>
+
+---
+
+## TranslatorService
+
+Multi-provider translation service with support for Chrome AI Translator API and LLM-based translation.
+
+### Methods
+
+<ResponseField name="configure" type="function">
+  ```typescript
+  configure(config: TranslatorConfig, tabId?: number): Promise<boolean>
+  ```
+  Configure translator with provider settings.
+  
+  **Parameters:**
+  - `config.provider`: 'chrome-ai' | 'openai' | 'ollama'
+</ResponseField>
+
+<ResponseField name="translateStreaming" type="function">
+  ```typescript
+  translateStreaming(
+    text: string,
+    sourceLang: string,
+    targetLang: string,
+    tabId?: number
+  ): AsyncGenerator<string>
+  ```
+  Stream translation results.
+  
+  **Parameters:**
+  - `text`: Text to translate
+  - `sourceLang`: Source language code (e.g., 'en')
+  - `targetLang`: Target language code (e.g., 'es')
+  - `tabId`: Tab ID (extension mode only)
+  
+  **Yields:** Translated text chunks
+</ResponseField>
+
+<ResponseField name="checkAvailability" type="function">
+  ```typescript
+  checkAvailability(
+    sourceLang: string,
+    targetLang: string,
+    tabId?: number
+  ): Promise<'readily' | 'downloading' | 'downloadable' | 'unavailable'>
+  ```
+  Check if language pair is available for translation.
+</ResponseField>
+
+<ResponseField name="abort" type="function">
+  ```typescript
+  abort(tabId?: number): void
+  ```
+  Abort ongoing translation request.
+</ResponseField>
+
+---
+
+## SummarizerService
+
+Multi-provider text summarization service supporting Chrome AI Summarizer API and LLM-based summarization.
+
+### Methods
+
+<ResponseField name="configure" type="function">
+  ```typescript
+  configure(config: SummarizerConfig, tabId?: number): Promise<boolean>
+  ```
+  Configure summarizer with provider settings.
+</ResponseField>
+
+<ResponseField name="summarizeStreaming" type="function">
+  ```typescript
+  summarizeStreaming(
+    text: string,
+    options?: SummarizerOptions,
+    tabId?: number
+  ): AsyncGenerator<string>
+  ```
+  Stream summarization results.
+  
+  **Parameters:**
+  - `text`: Text to summarize
+  - `options.type`: 'tldr' | 'headline' | 'key-points' | 'teaser'
+  - `options.format`: 'plain-text' | 'markdown'
+  - `options.length`: 'short' | 'medium' | 'long'
+  - `tabId`: Tab ID (extension mode only)
+  
+  **Yields:** Summary text chunks
+</ResponseField>
+
+<ResponseField name="checkAvailability" type="function">
+  ```typescript
+  checkAvailability(tabId?: number): Promise<string>
+  ```
+  Check if summarization is available.
+</ResponseField>
+
+<ResponseField name="abort" type="function">
+  ```typescript
+  abort(tabId?: number): void
+  ```
+  Abort ongoing summarization request.
+</ResponseField>
+
+---
+
+## RewriterService
+
+Multi-provider text rewriting service with tone, format, and length adjustments.
+
+### Methods
+
+<ResponseField name="configure" type="function">
+  ```typescript
+  configure(config: RewriterConfig, tabId?: number): Promise<boolean>
+  ```
+  Configure rewriter with provider settings.
+</ResponseField>
+
+<ResponseField name="rewriteStreaming" type="function">
+  ```typescript
+  rewriteStreaming(
+    text: string,
+    options?: RewriterOptions,
+    tabId?: number
+  ): AsyncGenerator<string>
+  ```
+  Stream rewriting results.
+  
+  **Parameters:**
+  - `text`: Text to rewrite
+  - `options.tone`: 'as-is' | 'more-formal' | 'more-casual' | 'professional' | 'friendly'
+  - `options.format`: 'as-is' | 'plain-text' | 'markdown'
+  - `options.length`: 'as-is' | 'shorter' | 'longer'
+  - `options.context`: Additional context for rewriting
+  - `tabId`: Tab ID (extension mode only)
+  
+  **Yields:** Rewritten text chunks
+</ResponseField>
+
+<ResponseField name="abort" type="function">
+  ```typescript
+  abort(tabId?: number): void
+  ```
+  Abort ongoing rewrite request.
+</ResponseField>
+
+---
+
+## WriterService
+
+Multi-provider content generation service for creating new text from prompts.
+
+### Methods
+
+<ResponseField name="configure" type="function">
+  ```typescript
+  configure(config: WriterConfig, tabId?: number): Promise<boolean>
+  ```
+  Configure writer with provider settings.
+</ResponseField>
+
+<ResponseField name="writeStreaming" type="function">
+  ```typescript
+  writeStreaming(
+    prompt: string,
+    options?: WriterOptions,
+    tabId?: number
+  ): AsyncGenerator<string>
+  ```
+  Stream content generation results.
+  
+  **Parameters:**
+  - `prompt`: Writing prompt
+  - `options.tone`: 'neutral' | 'formal' | 'casual' | 'professional' | 'friendly'
+  - `options.format`: 'plain-text' | 'markdown'
+  - `options.length`: 'short' | 'medium' | 'long'
+  - `options.context`: Additional context
+  - `tabId`: Tab ID (extension mode only)
+  
+  **Yields:** Generated text chunks
+</ResponseField>
+
+<ResponseField name="abort" type="function">
+  ```typescript
+  abort(tabId?: number): void
+  ```
+  Abort ongoing write request.
+</ResponseField>
+
+---
+
+## ChatHistoryService
+
+Service for managing persistent chat history with message trees and media storage.
+
+### Methods
+
+<ResponseField name="saveChat" type="function">
+  ```typescript
+  saveChat(chatData: ChatData): Promise<string>
+  ```
+  Save a chat with all associated data.
+  
+  **Parameters:**
+  - `chatData.chatId`: Chat ID (auto-generated if not provided)
+  - `chatData.chatService`: ChatService instance (for tree structure)
+  - `chatData.messages`: Flat message array (backward compatibility)
+  - `chatData.title`: Chat title (auto-generated if not provided)
+  - `chatData.isTemp`: Skip saving if true
+  - `chatData.metadata`: Additional metadata
+  
+  **Returns:** Chat ID
+</ResponseField>
+
+<ResponseField name="loadChat" type="function">
+  ```typescript
+  loadChat(chatId: string): Promise<ChatRecord>
+  ```
+  Load a chat with all data and media.
+  
+  **Returns:** Chat record with messages and metadata
+</ResponseField>
+
+<ResponseField name="listChats" type="function">
+  ```typescript
+  listChats(
+    offset?: number,
+    limit?: number
+  ): Promise<ChatRecord[]>
+  ```
+  List saved chats with pagination.
+  
+  **Parameters:**
+  - `offset`: Skip first N chats (default: 0)
+  - `limit`: Max chats to return (default: 20)
+  
+  **Returns:** Array of chat records (sorted by updatedAt descending)
+</ResponseField>
+
+<ResponseField name="deleteChat" type="function">
+  ```typescript
+  deleteChat(chatId: string): Promise<void>
+  ```
+  Delete a chat and all associated media.
+</ResponseField>
+
+<ResponseField name="updateChatTitle" type="function">
+  ```typescript
+  updateChatTitle(chatId: string, newTitle: string): Promise<void>
+  ```
+  Update the title of a saved chat.
+</ResponseField>
+
+<ResponseField name="searchChats" type="function">
+  ```typescript
+  searchChats(query: string): Promise<ChatRecord[]>
+  ```
+  Search chats by title or content.
+</ResponseField>
+
+---
+
+## Usage Examples
+
+<Accordion title="AI Chat with Streaming">
+```javascript
+import AIServiceProxy from './services/proxies/AIServiceProxy';
+
+// Configure
+await AIServiceProxy.configure({
+  provider: 'chrome-ai',
+  chromeAi: {
+    temperature: 1.0,
+    topK: 3,
+    enableImageSupport: true,
+  },
+});
+
+// Chat with streaming
+const messages = [
+  { role: 'user', content: 'Hello!' },
+];
+
+let fullResponse = '';
+for await (const chunk of AIServiceProxy.chat(messages)) {
+  fullResponse += chunk;
+  console.log(chunk);
+}
+```
+</Accordion>
+
+<Accordion title="Text-to-Speech with Kokoro">
+```javascript
+import { TTSServiceProxy } from './services/proxies';
+
+// Configure
+TTSServiceProxy.configure({
+  enabled: true,
+  provider: 'kokoro',
+  kokoro: {
+    modelId: 'onnx-community/Kokoro-82M-v1.0-ONNX',
+    voice: 'af_heart',
+    speed: 1.0,
+    device: 'auto',
+  },
+});
+
+// Generate and play
+const audioUrls = await TTSServiceProxy.generateChunkedSpeech(
+  "Hello, how can I help you?",
+  null,
+  500,
+  100,
+  'session_1'
+);
+
+await TTSServiceProxy.playAudioSequence(audioUrls, 'session_1');
+```
+</Accordion>
+
+<Accordion title="Speech-to-Text Recording">
+```javascript
+import { STTServiceProxy } from './services/proxies';
+
+// Set up callbacks
+STTServiceProxy.setTranscriptionCallback((text) => {
+  console.log('Transcription:', text);
+});
+
+STTServiceProxy.setErrorCallback((error) => {
+  console.error('STT Error:', error);
+});
+
+// Start recording
+await STTServiceProxy.startRecording();
+
+// Stop when ready
+await STTServiceProxy.stopRecording();
+```
+</Accordion>
+
+<Accordion title="Translation with Streaming">
+```javascript
+import { TranslatorServiceProxy } from './services/proxies';
+
+// Configure
+await TranslatorServiceProxy.configure({
+  provider: 'chrome-ai',
+});
+
+// Translate with streaming
+let translation = '';
+for await (const chunk of TranslatorServiceProxy.translateStreaming(
+  'Hello, world!',
+  'en',
+  'es'
+)) {
+  translation += chunk;
+  console.log(chunk);
+}
+// Result: "¡Hola, mundo!"
+```
+</Accordion>

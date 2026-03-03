@@ -1,0 +1,427 @@
+---
+title: Customization
+description: Customize companion appearance, position, animations, and toolbar behavior
+---
+
+## Companion Positioning
+
+### Position Presets
+
+VAssist offers 8 pre-configured position presets for placing the virtual companion on your screen:
+
+<ParamField path="uiConfig.position.preset" type="string" default="bottom-right">
+  Choose where the companion appears on screen.
+  
+  **Available presets**:
+  - **`bottom-right`**: Bottom-right corner (default)
+  - **`bottom-left`**: Bottom-left corner
+  - **`bottom-center`**: Centered at bottom
+  - **`top-right`**: Top-right corner
+  - **`top-left`**: Top-left corner
+  - **`top-center`**: Centered at top
+  - **`center`**: Screen center (larger view, ideal for development)
+  - **`last-location`**: Restore to last dragged position
+</ParamField>
+
+### Manual Positioning
+
+You can manually position the companion by **dragging**:
+
+1. Click and hold anywhere on the companion or chat interface
+2. Drag to desired position
+3. Release to place
+4. Position is **automatically saved**
+5. Select **"Last Location"** preset to restore this position
+
+<Info>
+  When using "Last Location" preset, the companion will load at your custom dragged position every time.
+</Info>
+
+### Position Configuration Details
+
+Each preset defines:
+
+```javascript
+{
+  name: 'Bottom Right',
+  modelSize: { width: 300, height: 500 },      // Viewport dimensions
+  padding: 0,                                    // Edge padding (pixels)
+  offset: { x: -2, y: 2 },                      // Camera offset (world units)
+  customBoundaries: {                            // Drag boundaries (pixels)
+    left: 80,
+    right: 0,
+    top: 100,
+    bottom: 0
+  },
+  portraitOffset: { x: 0, y: 6.2 },            // Portrait mode offset
+  portraitCustomBoundaries: { ... },            // Portrait mode boundaries
+  portraitClipPlaneY: 12                        // Portrait mode clipping
+}
+```
+
+### Custom Boundaries
+
+<ParamField path="customBoundaries" type="object">
+  Per-edge drag boundaries restrict how close the companion can be dragged to screen edges.
+  
+  - **Positive values**: More restrictive (prevents overlap with UI elements)
+  - **Negative values**: Less restrictive (allows closer to edge)
+  - **Zero**: No custom restriction
+  
+  Example:
+  ```javascript
+  customBoundaries: {
+    left: 80,    // Keep 80px away from left edge
+    right: 0,    // No restriction on right
+    top: 100,    // Keep 100px from top (avoid browser UI)
+    bottom: 0    // No restriction at bottom
+  }
+  ```
+</ParamField>
+
+## Animation Settings
+
+### Avatar Display Mode
+
+<ParamField path="uiConfig.enableModelLoading" type="boolean" default="true">
+  Toggle between animated avatar and chat-only mode.
+  
+  - **Enabled**: Full 3D animated virtual assistant
+  - **Disabled**: Chat interface only (lightweight mode)
+</ParamField>
+
+### Portrait Mode
+
+<ParamField path="uiConfig.enablePortraitMode" type="boolean" default="false">
+  Frame the companion as an upper-body portrait.
+  
+  **Portrait Mode features**:
+  - Closer camera view
+  - Focus on upper body (chest/face level)
+  - More intimate conversation feel
+  - Clips lower body using portrait clip plane
+  
+  **Normal Mode (disabled)**:
+  - Full body view
+  - Standard camera distance
+  - Shows complete character
+</ParamField>
+
+<Info>
+  Portrait mode adjusts the camera offset and clip plane per preset. Each preset has `portraitOffset` and `portraitClipPlaneY` settings optimized for upper-body framing.
+</Info>
+
+### Physics Simulation
+
+<ParamField path="uiConfig.enablePhysics" type="boolean" default="true">
+  Enable realistic physics for hair and cloth movement.
+  
+  **Enabled**:
+  - Hair sways naturally
+  - Cloth responds to movement
+  - More lifelike appearance
+  - Higher GPU usage
+  
+  **Disabled**:
+  - Better performance
+  - Lower resource usage
+  - Static hair/clothing
+  - Recommended for low-end devices
+</ParamField>
+
+### Frame Rate Control
+
+<ParamField path="uiConfig.fpsLimit" type="number|string" default="60">
+  Limit rendering frame rate to balance performance and smoothness.
+  
+  **Options**:
+  - **`30`**: Battery saver mode (minimal resource usage)
+  - **`60`**: Recommended (smooth, balanced)
+  - **`90`**: High refresh displays
+  - **`native`**: Match monitor refresh rate (144Hz+)
+  
+  <Warning>
+    Native refresh rate may impact performance on high-refresh monitors (144Hz, 240Hz). Use 60 FPS for best balance.
+  </Warning>
+</ParamField>
+
+### Streaming Animation
+
+<ParamField path="uiConfig.smoothStreamingAnimation" type="boolean" default="false">
+  Enable smooth height transitions when AI responses stream in.
+  
+  **Enabled**:
+  - Chat bubbles smoothly expand as text appears
+  - More polished visual experience
+  - **Performance impact** on lower-end devices
+  
+  **Disabled**:
+  - Instant height adjustments
+  - Better performance
+  - Recommended for slower devices
+</ParamField>
+
+## Toolbar Preferences
+
+### AI Toolbar
+
+The AI Toolbar appears when interacting with page content, offering quick actions like Summarize, Translate, and Add to Chat.
+
+<ParamField path="uiConfig.enableAIToolbar" type="boolean" default="true">
+  Master toggle for the AI Toolbar.
+  
+  When disabled, toolbar never appears automatically.
+</ParamField>
+
+### Show on Input Focus
+
+<ParamField path="uiConfig.aiToolbar.showOnInputFocus" type="boolean" default="true">
+  Show toolbar when clicking on text inputs.
+  
+  **Use case**: Provides dictation and AI writing assistance when filling out forms or typing in text fields.
+  
+  Toolbar includes:
+  - Voice dictation button
+  - AI writing helper
+  - Quick chat access
+</ParamField>
+
+### Show on Image Hover
+
+<ParamField path="uiConfig.aiToolbar.showOnImageHover" type="boolean" default="true">
+  Show toolbar when hovering over images.
+  
+  **Use case**: Quick image analysis and description actions.
+  
+  Toolbar includes:
+  - Describe image
+  - Extract text (OCR)
+  - Add to chat for questions
+</ParamField>
+
+### Show on Text Selection
+
+**Enabled automatically** when text is selected. Provides:
+- **Summarize**: Condense selected text
+- **Translate**: Translate to another language
+- **Define**: Look up word definitions
+- **Add to Chat**: Start a conversation about the selection
+
+## Preset Management
+
+### Creating Custom Presets
+
+While VAssist doesn't have a UI for creating custom presets, you can define them in the configuration:
+
+```javascript
+// Example: Custom preset for bottom-right with larger size
+const customPreset = {
+  'custom-large': {
+    name: 'Custom Large',
+    modelSize: { width: 400, height: 600 },
+    padding: 0,
+    offset: { x: -2, y: 2 },
+    customBoundaries: { left: 100, right: 0, top: 100, bottom: 0 },
+    portraitOffset: { x: 0, y: 6.2 },
+    portraitCustomBoundaries: { left: 0, right: 0, top: 100, bottom: 0 },
+    portraitClipPlaneY: 12,
+    description: 'Larger companion view in bottom-right'
+  }
+};
+```
+
+### Preset Parameters
+
+<ParamField path="modelSize" type="object" required>
+  Viewport dimensions for the companion canvas.
+  
+  ```javascript
+  modelSize: { width: 300, height: 500 }
+  ```
+  
+  Larger sizes show more detail but use more screen space.
+</ParamField>
+
+<ParamField path="offset" type="object">
+  Camera position offset in world coordinates.
+  
+  ```javascript
+  offset: { x: -2, y: 2 }
+  ```
+  
+  - **X-axis**: `+x` pushes left, `-x` pushes right
+  - **Y-axis**: `+y` pushes down, `-y` pushes up
+</ParamField>
+
+<ParamField path="portraitClipPlaneY" type="number" default="12">
+  Y-axis height for portrait mode clipping plane.
+  
+  - Adjust to clip at waist/chest level
+  - Higher values = show more of upper body
+  - Lower values = tighter portrait framing
+</ParamField>
+
+### Saving Presets
+
+To persist custom presets:
+
+1. Modify `src/config/uiConfig.js`
+2. Add your preset to `PositionPresets`
+3. Rebuild the extension/app
+
+<Note>
+  A future update may include a visual preset editor in the settings UI.
+</Note>
+
+## Keyboard Shortcuts
+
+Customize keyboard shortcuts for quick access:
+
+<ParamField path="uiConfig.shortcuts.enabled" type="boolean" default="false">
+  Enable custom keyboard shortcuts.
+</ParamField>
+
+<ParamField path="uiConfig.shortcuts.openChat" type="string" default="">
+  Shortcut to open/focus chat input.
+  
+  Example: `Ctrl+Shift+C` or `Cmd+K`
+</ParamField>
+
+<ParamField path="uiConfig.shortcuts.toggleMode" type="string" default="">
+  Shortcut to toggle voice/text mode.
+  
+  Example: `Ctrl+Shift+V`
+</ParamField>
+
+### Shortcut Format
+
+Shortcuts follow standard notation:
+- **Modifiers**: `Ctrl`, `Alt`, `Shift`, `Cmd` (macOS)
+- **Keys**: Letters (`A`-`Z`), numbers, function keys (`F1`-`F12`)
+- **Combination**: `Ctrl+Shift+K`, `Alt+S`, `Cmd+Option+V`
+
+## Theme Customization
+
+While VAssist doesn't support custom CSS themes yet, you can control the appearance mode:
+
+<Tabs>
+  <Tab title="Adaptive Theme">
+    Automatically detects page background and adjusts UI colors for optimal contrast.
+    
+    ```javascript
+    uiConfig: {
+      backgroundDetection: {
+        mode: 'adaptive',
+        sampleGridSize: 5
+      }
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Light Theme">
+    Force light mode UI regardless of page background.
+    
+    ```javascript
+    uiConfig: {
+      backgroundDetection: {
+        mode: 'light'
+      }
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Dark Theme">
+    Force dark mode UI regardless of page background.
+    
+    ```javascript
+    uiConfig: {
+      backgroundDetection: {
+        mode: 'dark'
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Icon Preferences
+
+<ParamField path="uiConfig.enableColoredIcons" type="boolean" default="false">
+  Use colored icons instead of monochrome.
+  
+  - **Enabled**: Icons use brand colors (blue, green, purple, etc.)
+  - **Disabled**: All icons are neutral gray/white
+</ParamField>
+
+<ParamField path="uiConfig.enableColoredIconsToolbarOnly" type="boolean" default="false">
+  Restrict colored icons to the AI toolbar only.
+  
+  When enabled with `enableColoredIcons`:
+  - Toolbar icons are colored
+  - Chat and settings icons remain monochrome
+  
+  Provides visual distinction between action toolbar and UI controls.
+</ParamField>
+
+## Advanced Customization
+
+### Developer Mode
+
+Enable developer tools for testing and customization:
+
+<ParamField path="uiConfig.enableDebugPanel" type="boolean" default="false">
+  Show draggable debug panel.
+  
+  **Features**:
+  - Test animations manually
+  - Adjust position and camera in real-time
+  - Monitor performance metrics
+  - Toggle physics, shadows, effects
+  - Logger controls
+</ParamField>
+
+### Camera Configuration
+
+Advanced camera settings in `src/config/sceneConfig.js`:
+
+```javascript
+{
+  orthoHeight: 12,          // Orthographic camera height
+  cameraDistance: -30,      // Distance from model
+  enableCameraAnimation: true,
+  cameraAnimationUrl: 'path/to/camera.bvmd'
+}
+```
+
+### Model Customization
+
+Replace the default avatar model:
+
+```javascript
+{
+  modelUrl: 'res/assets/model/custom_model.bpmx',
+  enablePhysics: true,
+  enableShadows: true
+}
+```
+
+**Model requirements**:
+- **Format**: `.bpmx` (Babylon MMD model)
+- **Rigging**: Standard MMD bone structure
+- **Physics**: Optional MMD physics setup
+- **Animations**: Compatible with `.bvmd` motion files
+
+<Warning>
+  Custom models require knowledge of MMD (MikuMikuDance) model formats and rigging. Test thoroughly before deployment.
+</Warning>
+
+## Resetting Customizations
+
+To restore default settings:
+
+1. **Via Settings**: Click "Start Setup Wizard Again" in UI Settings
+2. **Clear Storage**: Delete IndexedDB `VAssistDB` in browser DevTools
+3. **Reinstall Extension**: Remove and reinstall from Chrome Web Store
+
+<Note>
+  Resetting clears all customizations, chat history, and saved positions. Export important chats before resetting.
+</Note>
