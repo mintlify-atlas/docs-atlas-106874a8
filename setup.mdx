@@ -1,0 +1,366 @@
+---
+title: Setup Guide
+description: Complete first-time configuration for VAssist including AI providers, virtual companion, and feature customization.
+---
+
+# First-Time Setup
+
+After installing VAssist, you'll be guided through a setup wizard to configure the extension for your needs. This guide covers all configuration options in detail.
+
+<Note>
+  Make sure you've completed the [Installation Guide](/installation) before proceeding with setup.
+</Note>
+
+## Initial Configuration
+
+<Steps>
+  <Step title="Launch Setup Wizard">
+    Click the VAssist extension icon in your Chrome toolbar to open the setup wizard.
+
+    The wizard will guide you through:
+    - AI provider selection and configuration
+    - Virtual companion customization
+    - Feature preferences
+    - Privacy and performance settings
+
+    <Note>
+      You can skip any step during setup and configure it later from the Settings panel.
+    </Note>
+  </Step>
+
+  <Step title="Configure AI Provider">
+    Choose which AI provider to use for VAssist features:
+
+    ### Chrome Built-in AI (Recommended)
+
+    **Uses Chrome's native Gemini Nano model:**
+
+    - ✅ Completely free
+    - ✅ Runs locally on your device
+    - ✅ No API keys required
+    - ✅ Privacy-focused (no data leaves your device)
+    - ✅ Works offline after initial model download
+
+    **Verify Chrome AI is ready:**
+
+    1. Check that all Chrome flags are enabled (see [Installation Guide](/installation))
+    2. Visit `chrome://components` in a new tab
+    3. Look for "Optimization Guide On Device Model"
+    4. Status should show "Up to date" or version number
+    5. If not installed, click "Check for update"
+
+    <Warning>
+      AI models are 2-3 GB in size. The first download may take 5-15 minutes depending on your connection speed.
+    </Warning>
+
+    ### Third-Party Providers (Optional)
+
+    VAssist also supports external AI providers if you prefer:
+
+    **OpenAI (GPT-4, GPT-4o, GPT-3.5)**
+    - Requires OpenAI API key
+    - More powerful models available
+    - Usage costs apply
+
+    **Anthropic Claude**
+    - Requires Anthropic API key
+    - Advanced reasoning capabilities
+    - Usage costs apply
+
+    **Google AI (Gemini Pro)**
+    - Requires Google AI API key
+    - Cloud-based processing
+    - Usage costs apply
+
+    To configure third-party providers:
+    1. Select the provider in the setup wizard
+    2. Enter your API key when prompted
+    3. Choose your preferred model
+    4. Test the connection
+
+    <Note>
+      API keys are stored locally in your browser and never sent to VAssist servers. You're responsible for your API usage and associated costs.
+    </Note>
+  </Step>
+
+  <Step title="Set Up Virtual Companion">
+    Customize the animated 3D character that appears on your screen:
+
+    ### Display Options
+
+    **Enable/Disable Companion:**
+    - Toggle the companion on or off
+    - Useful if you prefer a lightweight experience
+    - Can be changed anytime from Settings
+
+    **Display Mode:**
+    - **Full Body**: Shows the complete character model
+    - **Portrait**: Shows only head and shoulders (better performance)
+
+    **Position:**
+    - Drag the companion anywhere on your screen
+    - Position is saved per preset
+    - Resets to default position on new tabs
+
+    ### Performance Settings
+
+    **Animation Quality:**
+    - **High**: Smooth 60 FPS animations (recommended for powerful devices)
+    - **Medium**: 30 FPS animations (balanced)
+    - **Low**: Minimal animations (better performance)
+
+    **Canvas Size:**
+    - Adjust the size of the 3D rendering canvas
+    - Smaller size = better performance
+    - Larger size = more detailed visuals
+
+    <Warning>
+      The virtual companion uses WebGL for 3D rendering. If you experience performance issues, try portrait mode or disable the companion.
+    </Warning>
+  </Step>
+
+  <Step title="Configure Toolbar Features">
+    Choose which AI toolbar features to enable:
+
+    ### Text Selection Toolbar
+
+    Appears when you select text on any webpage:
+
+    - ✅ **Summarize** - Generate headlines, key points, and teasers
+    - ✅ **Translate** - Translate to 100+ languages
+    - ✅ **Rewrite** - Fix grammar, change tone, adjust length
+    - ✅ **Dictionary** - Get definitions and synonyms
+    - ✅ **Copy/Share** - Quick actions for selected text
+
+    ### Input Field Toolbar
+
+    Appears when you focus on text inputs:
+
+    - ✅ **Writer** - Generate content based on context
+    - ✅ **Voice Dictation** - Speak instead of type
+    - ✅ **Grammar Check** - Fix mistakes as you type
+
+    ### Image Toolbar
+
+    Appears when you hover over images:
+
+    - ✅ **Describe** - AI describes what's in the image
+    - ✅ **Extract Text** - OCR to pull out text
+    - ✅ **Identify Objects** - Label items in photos
+
+    <Note>
+      You can enable or disable individual toolbar features in Settings → Features.
+    </Note>
+  </Step>
+
+  <Step title="Test the Extension">
+    Verify that VAssist is working correctly:
+
+    ### Test the AI Toolbar
+
+    1. Navigate to any webpage with text
+    2. Select a paragraph of text
+    3. The AI toolbar should appear near your selection
+    4. Try clicking "Summarize" or "Translate"
+
+    ### Test the Chat Interface
+
+    1. Click the VAssist extension icon
+    2. Type a message in the chat input
+    3. Press Enter or click Send
+    4. AI should respond within a few seconds
+
+    ### Test Page Context
+
+    1. Open an article or blog post
+    2. Click the VAssist extension icon
+    3. Ask: "What is this page about?"
+    4. AI should summarize the page content
+
+    ### Test Virtual Companion
+
+    1. Enable the companion in Settings
+    2. The 3D character should appear on the page
+    3. Send a chat message
+    4. Watch the character animate while "speaking"
+
+    <Note>
+      If any features aren't working, check that AI models have finished downloading at `chrome://components`.
+    </Note>
+  </Step>
+</Steps>
+
+## Advanced Configuration
+
+After completing initial setup, you can fine-tune VAssist behavior:
+
+### Chat Settings
+
+**Conversation History:**
+- Enable/disable automatic chat saving
+- Set history retention period
+- Clear old conversations
+
+**Message Behavior:**
+- Show/hide timestamps
+- Enable message animations
+- Configure TTS voice and speed
+
+**Context Options:**
+- Include page content in prompts
+- Set maximum context length
+- Enable/disable image attachments
+
+### Voice Settings
+
+**Text-to-Speech (TTS):**
+- Choose voice model (Kokoro.js on-device TTS)
+- Adjust speech rate and pitch
+- Enable/disable auto-play responses
+
+**Speech-to-Text (STT):**
+- Select language for voice input
+- Configure microphone sensitivity
+- Enable/disable voice commands
+
+### Privacy Settings
+
+**Data Storage:**
+- Clear chat history
+- Delete cached responses
+- Reset all settings to defaults
+
+**Analytics:**
+- Disable usage telemetry
+- Opt out of error reporting
+
+<Warning>
+  Clearing chat history permanently deletes all saved conversations. This action cannot be undone.
+</Warning>
+
+### Performance Optimization
+
+**Memory Management:**
+- Limit number of active chats
+- Auto-clear old messages
+- Reduce animation quality
+
+**Network:**
+- Disable external API calls
+- Use only on-device AI
+- Limit image attachment size
+
+**Multi-Tab Behavior:**
+- Share state across tabs (higher memory usage)
+- Isolate per-tab state (better performance)
+
+## Keyboard Shortcuts
+
+VAssist supports custom keyboard shortcuts:
+
+| Action | Default Shortcut | Customizable |
+|--------|------------------|-------------|
+| Open Chat | `Alt+V` | ✅ |
+| Toggle Companion | `Alt+C` | ✅ |
+| Voice Dictation | `Alt+D` | ✅ |
+| Quick Summarize | `Alt+S` | ✅ |
+
+Customize shortcuts in Settings → Keyboard or via `chrome://extensions/shortcuts`.
+
+## Preset Management
+
+VAssist supports multiple configuration presets:
+
+**Create Preset:**
+1. Configure VAssist settings as desired
+2. Open Settings → Presets
+3. Click "Save Current Configuration"
+4. Name your preset
+
+**Load Preset:**
+1. Open Settings → Presets
+2. Select a saved preset
+3. Click "Load"
+
+**Use Cases:**
+- **Work Mode**: Formal tone, minimal animations, higher context
+- **Personal Mode**: Casual tone, full companion, voice enabled
+- **Performance Mode**: Minimal features, no companion, text-only
+
+## Updating VAssist
+
+VAssist will notify you when updates are available:
+
+1. Click "Update Available" notification
+2. Chrome will download the update automatically
+3. Click "Reload Extension" when prompted
+4. Your settings and chat history are preserved
+
+<Note>
+  If you installed from source, pull the latest code and run `bun run build:extension` to update.
+</Note>
+
+## Troubleshooting Setup Issues
+
+### Setup Wizard Won't Open
+
+- Refresh the extension at `chrome://extensions`
+- Check browser console for errors (F12)
+- Try disabling and re-enabling the extension
+- Verify Chrome version is 138+
+
+### AI Not Responding
+
+- Check that all Chrome flags are enabled
+- Verify models downloaded at `chrome://components`
+- Test with simple query: "Hello"
+- Check Settings → AI → Status
+
+### Companion Not Appearing
+
+- Verify companion is enabled in Settings
+- Check that WebGL is supported (visit `chrome://gpu`)
+- Try switching to portrait mode
+- Refresh the page
+
+### Toolbar Not Showing
+
+- Verify toolbar features are enabled
+- Check that you're not on a restricted page (chrome:// URLs)
+- Disable conflicting extensions
+- Test on a different website
+
+## Next Steps
+
+Now that VAssist is configured, explore the full range of features:
+
+<CardGroup cols={2}>
+  <Card
+    title="Feature Documentation"
+    icon="book"
+    href="/features/ai-toolbar"
+  >
+    Learn about all VAssist features in detail.
+  </Card>
+  <Card
+    title="Try Demo"
+    icon="play"
+    href="https://vassist-demo.vercel.app"
+  >
+    Test VAssist features in demo mode.
+  </Card>
+  <Card
+    title="Contributing"
+    icon="code"
+    href="https://github.com/b1ink0/vassist/blob/main/CONTRIBUTING.md"
+  >
+    Help improve VAssist by contributing code.
+  </Card>
+  <Card
+    title="GitHub Discussions"
+    icon="comments"
+    href="https://github.com/b1ink0/vassist/discussions"
+  >
+    Ask questions and share tips with the community.
+  </Card>
+</CardGroup>

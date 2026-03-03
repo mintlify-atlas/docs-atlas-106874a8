@@ -1,0 +1,250 @@
+---
+title: Installation
+description: Complete guide to installing VAssist and enabling Chrome's built-in AI features.
+---
+
+# Installation Guide
+
+This guide will walk you through installing VAssist and enabling all required Chrome AI features. The entire process takes about 5-10 minutes.
+
+## Requirements
+
+<Note>
+  **Chrome 138+** is required to use VAssist. The extension relies on Chrome's built-in AI APIs that are only available in version 138 and newer.
+</Note>
+
+Before you begin, ensure you have:
+
+- **Chrome Browser** version 138 or newer
+- **Developer mode** enabled in Chrome extensions
+- **Sufficient disk space** for AI models (approximately 2-3 GB)
+
+## Installation Steps
+
+<Steps>
+  <Step title="Verify Chrome Version">
+    First, check that you're running Chrome 138 or newer:
+
+    1. Open a new tab and navigate to `chrome://version`
+    2. Look for the version number at the top (e.g., "138.0.6666.66")
+    3. If your version is below 138, go to `chrome://settings/help` to update Chrome
+    4. Restart Chrome after updating
+
+    <Warning>
+      Chrome AI features are experimental and require version 138+. If you cannot update to this version, VAssist will not work properly.
+    </Warning>
+  </Step>
+
+  <Step title="Enable Chrome AI Flags">
+    VAssist requires multiple Chrome AI flags to be enabled. Visit each URL below and configure the settings:
+
+    ### Core AI Model Flag
+
+    **Required for all AI features to work:**
+
+    ```
+    chrome://flags/#optimization-guide-on-device-model
+    ```
+    Set to: **Enabled BypassPerfRequirement**
+
+    <Note>
+      The "BypassPerfRequirement" option allows the AI model to run even if your device doesn't meet the recommended performance requirements.
+    </Note>
+
+    ### Prompt API Flags
+
+    **Enable Gemini Nano for chat and toolbar features:**
+
+    ```
+    chrome://flags/#prompt-api-for-gemini-nano
+    ```
+    Set to: **Enabled**
+
+    ```
+    chrome://flags/#prompt-api-for-gemini-nano-multimodal-input
+    ```
+    Set to: **Enabled** (for voice dictation and image analysis)
+
+    ### Writer and Rewriter APIs
+
+    **Enable content generation and text rewriting:**
+
+    ```
+    chrome://flags/#writer-api-for-gemini-nano
+    ```
+    Set to: **Enabled**
+
+    ```
+    chrome://flags/#rewriter-api-for-gemini-nano
+    ```
+    Set to: **Enabled**
+
+    ### Summarization API
+
+    **Enable text summarization features:**
+
+    ```
+    chrome://flags/#summarization-api-for-gemini-nano
+    ```
+    Set to: **Enabled**
+
+    ### Translation APIs
+
+    **Enable multi-language translation:**
+
+    ```
+    chrome://flags/#translation-api
+    ```
+    Set to: **Enabled**
+
+    ```
+    chrome://flags/#language-detection-api
+    ```
+    Set to: **Enabled**
+
+    ### Apply Changes
+
+    After enabling all flags, click the **Relaunch** button that appears at the bottom of the page.
+
+    <Warning>
+      You must restart Chrome for the flags to take effect. All tabs will be closed during the relaunch.
+    </Warning>
+  </Step>
+
+  <Step title="Download VAssist Extension">
+    Get the latest version of VAssist:
+
+    1. Visit the [VAssist Releases page](https://github.com/b1ink0/vassist/releases)
+    2. Download the latest `vassist-extension.zip` file
+    3. Extract the ZIP file to a permanent location on your computer
+
+    <Note>
+      Keep the extracted folder in a permanent location. If you delete or move it, the extension will stop working.
+    </Note>
+  </Step>
+
+  <Step title="Install the Extension">
+    Load the extension into Chrome:
+
+    1. Open Chrome and navigate to `chrome://extensions`
+    2. Enable **Developer mode** using the toggle in the top-right corner
+    3. Click the **Load unpacked** button
+    4. Navigate to and select the extracted VAssist folder
+    5. The VAssist icon should now appear in your extensions toolbar
+
+    <Note>
+      If you don't see the VAssist icon, click the puzzle piece icon in Chrome's toolbar and pin VAssist to make it always visible.
+    </Note>
+  </Step>
+
+  <Step title="First Launch Setup">
+    Click the VAssist extension icon to launch the setup wizard:
+
+    1. The setup wizard will guide you through initial configuration
+    2. AI models will begin downloading automatically (2-3 GB)
+    3. Model download happens in the background and may take several minutes
+    4. You can start using basic features while models download
+
+    <Warning>
+      The first launch will download AI models to your device. Ensure you have a stable internet connection and sufficient disk space (2-3 GB).
+    </Warning>
+
+    Proceed to the [Setup Guide](/setup) for detailed configuration instructions.
+  </Step>
+</Steps>
+
+## Verify Installation
+
+After installation, verify that everything is working:
+
+### Check AI Model Status
+
+1. Click the VAssist extension icon
+2. Open Settings (gear icon)
+3. Navigate to the AI section
+4. Check that all AI capabilities show as "Available" or "Ready"
+
+### Test Basic Features
+
+1. **Test the Toolbar**: Select any text on a webpage—the AI toolbar should appear
+2. **Test Chat**: Click the VAssist icon and try sending a message
+3. **Test Companion**: Enable the virtual companion in settings and verify it appears on the page
+
+<Note>
+  If some features aren't working immediately, the AI models may still be downloading. Check `chrome://components` and look for "Optimization Guide On Device Model" to see download progress.
+</Note>
+
+## Troubleshooting
+
+### Extension Not Loading
+
+- Ensure Developer mode is enabled in `chrome://extensions`
+- Verify you selected the correct folder (should contain `manifest.json`)
+- Check Chrome version is 138 or newer
+- Try disabling and re-enabling the extension
+
+### AI Features Not Working
+
+- Verify all Chrome flags are enabled correctly
+- Check that Chrome was restarted after enabling flags
+- Visit `chrome://components` and ensure "Optimization Guide On Device Model" is installed
+- Wait for model downloads to complete (may take 5-15 minutes on first launch)
+
+### Models Not Downloading
+
+- Check your internet connection
+- Ensure you have at least 3 GB of free disk space
+- Visit `chrome://components` and click "Check for update" on "Optimization Guide On Device Model"
+- Restart Chrome and try again
+
+### Performance Issues
+
+- Close unused tabs to free up memory
+- Disable the virtual companion if you have limited resources
+- Check that your system meets minimum requirements
+- Consider using "Enabled BypassPerfRequirement" if you haven't already
+
+## Building from Source
+
+If you prefer to build the extension yourself:
+
+```bash
+# Clone the repository
+git clone https://github.com/b1ink0/vassist.git
+cd vassist
+
+# Install dependencies (using Bun or npm)
+bun install
+# or
+npm install
+
+# Build the extension
+bun run build:extension
+# or
+npm run build:extension
+
+# The built extension will be in the dist-extension folder
+```
+
+Then follow Step 4 above to load the `dist-extension` folder into Chrome.
+
+## Next Steps
+
+Now that VAssist is installed, proceed to the [Setup Guide](/setup) to configure the extension for your first use.
+
+<CardGroup cols={2}>
+  <Card
+    title="Setup Guide"
+    icon="gear"
+    href="/setup"
+  >
+    Configure VAssist with the first-time setup wizard.
+  </Card>
+  <Card
+    title="GitHub Issues"
+    icon="bug"
+    href="https://github.com/b1ink0/vassist/issues"
+  >
+    Need help? Report issues or ask questions on GitHub.
+  </Card>
+</CardGroup>

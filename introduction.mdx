@@ -1,0 +1,135 @@
+---
+title: Introduction
+description: VAssist is an AI-powered Chrome extension with toolbar, chat interface, and animated 3D virtual companion that runs locally using Chrome's built-in AI.
+---
+
+<div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+  <img src="/images/VA.svg" alt="VAssist Logo" width="120" />
+</div>
+
+# Welcome to VAssist
+
+VAssist is a Chrome extension that brings powerful AI capabilities directly to your browser. With three integrated components—AI Toolbar, Chat Interface, and Virtual Companion—VAssist transforms how you interact with web content.
+
+All processing happens on your device using Chrome's built-in AI (Gemini Nano). No external API calls unless you configure third-party providers.
+
+## Three Main Components
+
+### AI Toolbar
+
+The AI Toolbar appears when you select text or focus on input fields, providing instant access to powerful AI tools:
+
+- **Summarize** - Convert long text into headlines, key points, and teasers using Chrome's Summarizer API
+- **Translate** - Translate to 100+ languages instantly with Chrome's Translator API and Language Detector API
+- **Rewrite** - Fix grammar, change tone, adjust length, and improve clarity using Chrome's Rewriter API
+- **Dictionary** - Get definitions, synonyms, antonyms, pronunciation, and usage examples with Gemini Nano
+- **Writer** - Generate fresh content from scratch using Chrome's Writer API
+- **Image Tools** - Describe images, extract text (OCR), and identify objects using Multimodal Prompt API
+- **Voice Dictation** - Talk instead of type with Multimodal Input API
+
+### Chat Interface
+
+Open the chat window anytime to have natural conversations with Gemini Nano running directly in your browser:
+
+- **Page Context** - Ask questions about the current page you're viewing
+- **File Attachments** - Drag and drop images or audio files for context
+- **Voice Mode** - Hands-free conversation with text-to-speech (TTS) and speech-to-text (STT)
+- **Chat History** - Auto-saved conversations with search and branching support
+- **Message Actions** - Edit messages, regenerate responses, and use TTS playback
+- **Smooth Animations** - Words fade in smoothly one at a time as AI responds
+- **Temporary Chats** - Start sessions that don't save to history
+
+### Virtual Companion
+
+A fully animated 3D character appears on your screen, making the experience more interactive and engaging:
+
+- **Display Modes** - Switch between full body or portrait mode
+- **Animations** - Idle movements, thinking states, and lip-synced speech
+- **Positioning** - Drag anywhere on screen, position saved per preset
+- **Interactive States** - The character responds with expressions and gestures
+
+## Quick Links
+
+<CardGroup cols={3}>
+  <Card
+    title="Installation"
+    icon="download"
+    href="/installation"
+  >
+    Get started with VAssist in minutes. Install the extension and enable Chrome AI flags.
+  </Card>
+  <Card
+    title="Setup Guide"
+    icon="gear"
+    href="/setup"
+  >
+    Configure VAssist for first-time use with the setup wizard.
+  </Card>
+  <Card
+    title="Try Demo"
+    icon="play"
+    href="https://vassist-demo.vercel.app"
+  >
+    Experience VAssist features in your browser before installing.
+  </Card>
+</CardGroup>
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="On-Device Processing" icon="shield">
+    All AI processing happens locally on your device. Your data stays private and secure.
+  </Card>
+  <Card title="Built-in AI" icon="brain">
+    Uses Chrome's native Gemini Nano AI—no external API keys required for core features.
+  </Card>
+  <Card title="Multi-Tab Support" icon="window">
+    Maintains separate state for each browser tab with seamless switching.
+  </Card>
+  <Card title="Shadow DOM Isolation" icon="lock">
+    Zero CSS conflicts with host pages. Works on YouTube, Twitter, Gmail, GitHub, and more.
+  </Card>
+</CardGroup>
+
+## Built With Modern Technologies
+
+VAssist is built with cutting-edge web technologies:
+
+- **React 19** - Modern UI framework with latest features
+- **Babylon.js** - High-performance 3D character rendering and animation
+- **Vite** - Lightning-fast build tool
+- **Tailwind CSS 4** - Utility-first styling with no conflicts
+- **Dexie.js** - Powerful IndexedDB wrapper for data persistence
+- **Kokoro.js** - On-device text-to-speech synthesis
+- **Chrome AI APIs** - Gemini Nano integration for local AI processing
+
+## Requirements
+
+<Note>
+  VAssist requires **Chrome 138 or newer** with specific AI flags enabled. See the [Installation Guide](/installation) for detailed setup instructions.
+</Note>
+
+## Open Source
+
+VAssist is open source and available on GitHub. Contributions are welcome!
+
+<CardGroup cols={2}>
+  <Card
+    title="GitHub Repository"
+    icon="github"
+    href="https://github.com/b1ink0/vassist"
+  >
+    View source code and contribute to the project.
+  </Card>
+  <Card
+    title="Report Issues"
+    icon="bug"
+    href="https://github.com/b1ink0/vassist/issues"
+  >
+    Found a bug? Let us know on GitHub Issues.
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+Ready to get started? Follow our [Installation Guide](/installation) to set up VAssist in minutes.
